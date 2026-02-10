@@ -5,8 +5,8 @@ from settings import *
 class Menu:
     def __init__(self, screen):
         self.screen = screen
-        self.font = pygame.font.SysFont(None, 75)
-        self.button_font = pygame.font.SysFont(None, 50)
+        self.font = pygame.font.Font('fonts/Emulogic-font.ttf', 75)
+        self.button_font = pygame.font.Font('fonts/Emulogic-font.ttf', 40)
 
         # Menu title
         self.title_text = self.font.render("PAC-MAN", True, WHITE)
