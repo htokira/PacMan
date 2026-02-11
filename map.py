@@ -1,10 +1,11 @@
 import pygame
 import math
+import copy
 
 class Map:
     def __init__(self, screen, level_data, width, height):
         self.screen = screen
-        self.level = level_data
+        self.level = copy.deepcopy(level_data)
         self.width = width
         self.height = height
 
@@ -40,3 +41,33 @@ class Map:
                     pygame.draw.arc(self.screen, 'blue', [(j * self.w - (self.w * 0.5)), (i * self.h - (0.5 * self.h)), self.w, self.h], 3*PI/2, 2*PI, 3)
                 elif val == 9:
                     pygame.draw.line(self.screen, 'white', (j * self.w, center_y), (j * self.w + self.w, center_y), 3)
+
+    #Перевірка чи гравець може йти, викликати перед рухом у методі гравця
+    def can_move(self, x, y):
+        col = int(x // self.w)
+        row = int(y // self.h)
+
+        if 0 <= row < self.rows and 0 <= col < self.cols:
+            if self.level[row][col] <= 2:
+                return True
+            
+        return False
+    
+    #Перевірка з яким об'єктом стикнувся гравець, викликати після руха гравця
+    def collision_with_objects(self, x, y):
+        score = 0
+        col = int(x // self.w)
+        row = int(y // self.h)
+
+        if 0 <= row < self.rows and 0 <= col < self.cols:
+            position = self.level[row][col]
+
+            if position == 1:
+                score = 1
+                self.level[row][col] = 0
+            elif position == 2:
+                score = 50
+                self.level[row][col] = 0
+                # логіка енерджайзера
+
+        return score
