@@ -44,5 +44,23 @@ class Pacman:
             self.rect = old_pos
             # Пакмен не зупиняється назовсім, він чекає на нову команду або просто стоїть у стіні
 
+        # Оновлення спрайта
+        self.rotate_sprite()
+
+    def rotate_sprite(self):
+        # ДЕТАЛЬ 2: Виправляємо перевернутий вигляд для лівого напрямку
+        if self.direction == (-self.speed, 0): # Вліво
+            # Віддзеркалюємо по горизонталі (True), а не повертаємо на 180 градусів
+            self.image = pygame.transform.flip(self.original_image, True, False)
+            
+        elif self.direction == (self.speed, 0): # Вправо
+            self.image = self.original_image
+            
+        elif self.direction == (0, -self.speed): # Вгору
+            self.image = pygame.transform.rotate(self.original_image, 90)
+            
+        elif self.direction == (0, self.speed): # Вниз
+            self.image = pygame.transform.rotate(self.original_image, 270)
+
     def draw(self, screen):
         screen.blit(self.image, self.rect)
