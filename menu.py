@@ -31,6 +31,12 @@ class Menu:
         self.diff_text = self.small_button_font.render("DIFFICULTY", True, BLACK)
         self.diff_text_rect = self.diff_text.get_rect(center=self.diff_btn_rect.center)
 
+        # Quit button
+        self.quit_btn_rect = pygame.Rect(0, 0, 200, 60)
+        self.quit_btn_rect.center = (WIDTH // 2, 550)
+        self.quit_text = self.button_font.render("QUIT", True, BLACK)
+        self.quit_text_rect = self.quit_text.get_rect(center=self.quit_btn_rect.center)
+
     def init_difficulty_menu(self):
         self.diff_title = self.button_font.render("SELECT DIFFICULTY", True, YELLOW)
         self.diff_title_rect = self.diff_title.get_rect(center=(WIDTH // 2, 100))
@@ -61,6 +67,10 @@ class Menu:
         pygame.draw.rect(self.screen, YELLOW, self.diff_btn_rect)
         self.screen.blit(self.diff_text, self.diff_text_rect)
 
+        # Quit button
+        pygame.draw.rect(self.screen, YELLOW, self.quit_btn_rect)
+        self.screen.blit(self.quit_text, self.quit_text_rect)
+
     def draw_difficulty_menu(self):
         self.screen.fill(BLACK)   
         self.screen.blit(self.diff_title, self.diff_title_rect)
@@ -84,7 +94,7 @@ class Menu:
                     elif self.med_rect.collidepoint(mouse_pos):
                         print("Selected MEDIUM")
                     elif self.hard_rect.collidepoint(mouse_pos):
-                        print("Selected HARD")
+                        print("Selected== HARD")
                     elif self.back_rect.collidepoint(mouse_pos):
                         running = False
 
@@ -110,5 +120,9 @@ class Menu:
                         
                     if self.diff_btn_rect.collidepoint(mouse_pos):
                         self.display_difficulty_menu()
+
+                    elif self.quit_btn_rect.collidepoint(mouse_pos):
+                        pygame.quit()
+                        sys.exit()
 
             pygame.display.update()
