@@ -2,15 +2,20 @@ import pygame
 import sys
 from settings import *
 from menu import Menu
+from map import Map
+from levels import LEVEL1
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pac-Man")
+activeLevel = LEVEL1
+game_map = Map(screen, activeLevel, WIDTH, HEIGHT)
 
 def run_game():
     while True:
         screen.fill(BLACK)
         pygame.display.set_caption("Game Running...")
+        game_map.draw_map()
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
