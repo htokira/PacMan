@@ -1,29 +1,35 @@
 import pygame
+import sys
+from settings import *
+from menu import Menu
 from map import Map
 from levels import LEVEL1
 
 pygame.init()
-
-WIDTH = 900
-HEIGHT = 950
-screen = pygame.display.set_mode([WIDTH, HEIGHT])
-timer = pygame.time.Clock()
-fps = 60
-font = pygame.font.Font('freesansbold.ttf', 20)
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Pac-Man")
 activeLevel = LEVEL1
-
 game_map = Map(screen, activeLevel, WIDTH, HEIGHT)
 
-run = True
-while run:
-    timer.tick(fps)
-    screen.fill('black')
-    game_map.draw_map()
+def run_game():
+    while True:
+        screen.fill(BLACK)
+        pygame.display.set_caption("Game Running...")
+        game_map.draw_map()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        
+        pygame.display.update()
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
+def main():
+    menu = Menu(screen)
+    action = menu.display_main_menu()
 
-    pygame.display.flip()
+    if action == "start_game":
+        run_game()
 
-pygame.quit()
+if __name__ == "__main__":
+    main()
