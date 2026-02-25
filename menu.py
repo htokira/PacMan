@@ -1,3 +1,4 @@
+import os
 import pygame
 import sys
 from settings import *
@@ -5,14 +6,27 @@ from settings import *
 class Menu:
     def __init__(self, screen):
         self.screen = screen
+        # Визначаємо шлях до папки, де лежить цей файл (menu.py)
+        self.current_dir = os.path.dirname(os.path.abspath(__file__))
         self.init_fonts()
         self.init_main_menu()
         self.init_difficulty_menu()
 
     def init_fonts(self):
-        self.font = pygame.font.Font('fonts/Emulogic-font.ttf', 75)
-        self.button_font = pygame.font.Font('fonts/Emulogic-font.ttf', 40)
-        self.small_button_font = pygame.font.Font('fonts/Emulogic-font.ttf', 25)
+        # Будуємо шлях до файлу шрифту відносно поточної папки
+        font_path = os.path.join(self.current_dir, 'fonts', 'Emulogic-font.ttf')
+        
+        # Перевіряємо, чи існує файл, щоб вивести зрозумілу помилку, якщо щось не так
+        if not os.path.exists(font_path):
+            print(f"ERROR: Font file not found at {font_path}")
+            # Можна використати системний шрифт як запасний варіант
+            self.font = pygame.font.SysFont('Arial', 75)
+            self.button_font = pygame.font.SysFont('Arial', 40)
+            self.small_button_font = pygame.font.SysFont('Arial', 25)
+        else:
+            self.font = pygame.font.Font(font_path, 75)
+            self.button_font = pygame.font.Font(font_path, 40)
+            self.small_button_font = pygame.font.Font(font_path, 25)
         
     def init_main_menu(self):
         # Title
@@ -94,7 +108,7 @@ class Menu:
                     elif self.med_rect.collidepoint(mouse_pos):
                         print("Selected MEDIUM")
                     elif self.hard_rect.collidepoint(mouse_pos):
-                        print("Selected== HARD")
+                        print("Selected HARD")
                     elif self.back_rect.collidepoint(mouse_pos):
                         running = False
 
@@ -110,7 +124,6 @@ class Menu:
             mouse_pos = pygame.mouse.get_pos()
             self.draw_main_menu()
 
-            # Event start game or quit game
             for event in pygame.event.get():
                 self.handle_quit_event(event)
                 
