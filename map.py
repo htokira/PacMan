@@ -14,8 +14,16 @@ class Map:
         self.h = (self.height - 50) // self.rows
         self.w = self.width // self.cols
 
+        self.flash_timer = pygame.time.get_ticks() 
+        self.is_energizer_flashing = True
+
     def draw_map(self):
         PI = math.pi
+
+        current_time = pygame.time.get_ticks()
+        if current_time - self.flash_timer > 350:
+            self.is_energizer_flashing = not self.is_energizer_flashing 
+            self.flash_timer = current_time
 
         for i in range(self.rows):
             for j in range(self.cols):
@@ -26,7 +34,8 @@ class Map:
                 if val == 1:
                     pygame.draw.circle(self.screen, 'white', (center_x, center_y), 4)
                 elif val == 2:
-                    pygame.draw.circle(self.screen, 'white', (center_x, center_y), 10)
+                    if self.is_energizer_flashing:
+                        pygame.draw.circle(self.screen, 'white', (center_x, center_y), 10)
                 elif val == 3:
                     pygame.draw.line(self.screen, 'blue', (center_x, i * self.h), (center_x, i * self.h + self.h), 3) #замінити колір для інших рівнів
                 elif val == 4:
