@@ -58,6 +58,7 @@ class Map:
         score = 0
         col = int(x // self.w)
         row = int(y // self.h)
+        energizer_eaten = False
 
         if 0 <= row < self.rows and 0 <= col < self.cols:
             position = self.level[row][col]
@@ -68,6 +69,6 @@ class Map:
             elif position == 2:
                 score = 50
                 self.level[row][col] = 0
-                # логіка енерджайзера
+                energizer_eaten = True
 
-        return score
+        return score, energizer_eaten

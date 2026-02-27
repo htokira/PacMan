@@ -5,6 +5,7 @@ from menu import Menu
 from map import Map
 from levels import LEVEL1
 from pacman import Pacman
+from energizer import Energizer
 
 # 1. Ініціалізація Pygame та екрану
 pygame.init()
@@ -16,15 +17,14 @@ clock = pygame.time.Clock()
 activeLevel = LEVEL1
 game_map = Map(screen, activeLevel, WIDTH, HEIGHT)
 
-# --- ВИПРАВЛЕНО ---
-# Передаємо game_map, щоб Пакмен міг обрати початковий напрямок погляду
-# Використовуємо координати, які потрапляють у центр коридору
 player = Pacman(210, 159) 
 
 def run_game():
     score = 0
+    energizer = Energizer()
+
     while True:
-        # Очищення екрану
+        # Очищення 
         screen.fill(BLACK)
         
         # Відображення рахунку в заголовку вікна
@@ -43,11 +43,16 @@ def run_game():
         
         # Оновлюємо Пакмена (рух, анімація та "рейкова" логіка)
         player.update(game_map)
+
+        energizer.update()
         
         # Перевірка на з'їдання точок/енерджайзерів
         # Використовуємо центр спрайта для більш точного поїдання
-        points = game_map.collision_with_objects(player.rect.centerx, player.rect.centery)
+        points, is_energizer = game_map.collision_with_objects(player.rect.centerx, player.rect.centery)
         score += points
+
+        if is_energizer:
+            energizer.activate()
 
         # --- МАЛЮВАННЯ ---
         player.draw(screen)
