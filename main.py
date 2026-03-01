@@ -14,10 +14,10 @@ clock = pygame.time.Clock()
 
 player = Pacman(210, 159) 
 
-def run_game(selected_level):
+def run_game(selected_level, selected_color):
     score = 0
     energizer = Energizer()
-    game_map = Map(screen, selected_level, WIDTH, HEIGHT)
+    game_map = Map(screen, selected_level, selected_color, WIDTH, HEIGHT)
 
     while True:
         # Очищення 
@@ -64,10 +64,10 @@ def main():
     menu = Menu(screen)
     
     # Викликаємо головне меню
-    action, selected_level = menu.display_main_menu()
+    action, selected_level, selected_color  = menu.display_main_menu()
 
     if action == "start_game":
-        run_game(selected_level)
+        run_game(selected_level, selected_color)
     elif action == "quit": # Додано для коректного виходу з меню
         pygame.quit()
         sys.exit()
