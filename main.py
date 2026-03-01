@@ -5,6 +5,7 @@ from menu import Menu
 from map import Map
 from pacman import Pacman
 from energizer import Energizer
+from cli import *
 
 # 1. Ініціалізація Pygame та екрану
 pygame.init()
@@ -60,17 +61,25 @@ def run_game(selected_level, selected_color):
         clock.tick(60)
 
 def main():
-    # Створюємо меню
-    menu = Menu(screen)
-    
-    # Викликаємо головне меню
-    action, selected_level, selected_color  = menu.display_main_menu()
+    args = parse_args()
+    selected_color = COLOR_MAPPING.get(args.color)
 
-    if action == "start_game":
+    if args.level is not None:
+        selected_level = LEVEL_MAPPING.get(args.level)
+        print(f"Starting Game via CLI: Level {args.level}, Color {args.color}")
         run_game(selected_level, selected_color)
-    elif action == "quit": # Додано для коректного виходу з меню
-        pygame.quit()
-        sys.exit()
+    else:
+        # Створюємо меню
+        menu = Menu(screen)
+    
+        # Викликаємо головне меню
+        action, selected_level, selected_color  = menu.display_main_menu()
+
+        if action == "start_game":
+            run_game(selected_level, selected_color)
+        elif action == "quit": # Додано для коректного виходу з меню
+            pygame.quit()
+            sys.exit()
 
 if __name__ == "__main__":
     main()
