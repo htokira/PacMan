@@ -3,7 +3,6 @@ import sys
 from settings import *
 from menu import Menu
 from map import Map
-from levels import LEVEL1
 from pacman import Pacman
 from energizer import Energizer
 
@@ -13,15 +12,12 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pac-Man Game")
 clock = pygame.time.Clock() 
 
-# 2. Створення основних об'єктів
-activeLevel = LEVEL1
-game_map = Map(screen, activeLevel, WIDTH, HEIGHT)
-
 player = Pacman(210, 159) 
 
-def run_game():
+def run_game(selected_level):
     score = 0
     energizer = Energizer()
+    game_map = Map(screen, selected_level, WIDTH, HEIGHT)
 
     while True:
         # Очищення 
@@ -68,10 +64,10 @@ def main():
     menu = Menu(screen)
     
     # Викликаємо головне меню
-    action = menu.display_main_menu()
+    action, selected_level = menu.display_main_menu()
 
     if action == "start_game":
-        run_game()
+        run_game(selected_level)
     elif action == "quit": # Додано для коректного виходу з меню
         pygame.quit()
         sys.exit()

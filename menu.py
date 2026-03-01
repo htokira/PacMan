@@ -2,12 +2,14 @@ import os
 import pygame
 import sys
 from settings import *
+from levels import *
 
 class Menu:
     def __init__(self, screen):
         self.screen = screen
         # Визначаємо шлях до папки, де лежить цей файл (menu.py)
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
+        self.selected_level = LEVEL1
         self.init_fonts()
         self.init_main_menu()
         self.init_difficulty_menu()
@@ -104,10 +106,13 @@ class Menu:
                 
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if self.easy_rect.collidepoint(mouse_pos):
+                        self.selected_level = LEVEL1
                         print("Selected EASY")
                     elif self.med_rect.collidepoint(mouse_pos):
+                        self.selected_level = LEVEL2
                         print("Selected MEDIUM")
                     elif self.hard_rect.collidepoint(mouse_pos):
+                        self.selected_level = LEVEL3
                         print("Selected HARD")
                     elif self.back_rect.collidepoint(mouse_pos):
                         running = False
@@ -129,7 +134,7 @@ class Menu:
                 
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if self.button_rect.collidepoint(mouse_pos):
-                        return "start_game"
+                        return "start_game", self.selected_level
                         
                     if self.diff_btn_rect.collidepoint(mouse_pos):
                         self.display_difficulty_menu()
