@@ -13,7 +13,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pac-Man Game")
 clock = pygame.time.Clock() 
 
-player = Pacman(210, 159) 
+player = Pacman(PLAYER_X, PLAYER_Y) 
 
 def run_game(selected_level, selected_color):
     score = 0
