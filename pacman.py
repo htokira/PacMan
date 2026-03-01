@@ -5,11 +5,11 @@ class Pacman:
         try:
             self.original_image = pygame.image.load("assets/pacman.png")
         except:
-            self.original_image = pygame.Surface((34, 34), pygame.SRCALPHA)
-            pygame.draw.circle(self.original_image, (255, 255, 0), (17, 17), 17)
+            self.original_image = pygame.Surface((27, 27), pygame.SRCALPHA)
+            pygame.draw.circle(self.original_image, (255, 255, 0), (13, 13), 13)
             
         # Збільшуємо до 34х34, щоб він щільно сидів у коридорі
-        self.original_image = pygame.transform.scale(self.original_image, (34, 34))
+        self.original_image = pygame.transform.scale(self.original_image, (27, 27))
         self.image = self.original_image
         self.rect = self.image.get_rect(topleft=(x, y))
         
@@ -20,8 +20,8 @@ class Pacman:
     def can_move_to(self, x, y, game_map):
         # Перевіряємо тільки одну точку — ПЕРЕД Пакменом по центру його руху
         # Якщо перед носом не стіна — він їде. Це виключає застрягання боками.
-        check_x = x + 17 + (self.direction[0] * 10 if self.direction[0] != 0 else 0)
-        check_y = y + 17 + (self.direction[1] * 10 if self.direction[1] != 0 else 0)
+        check_x = x + 13 + (self.direction[0] * 8 if self.direction[0] != 0 else 0)
+        check_y = y + 13 + (self.direction[1] * 8 if self.direction[1] != 0 else 0)
         return game_map.can_move(check_x, check_y)
 
     def update(self, game_map):
@@ -38,11 +38,11 @@ class Pacman:
         # 1. Поворот: дозволяємо тільки якщо ми в центрі перехрестя
         if self.next_direction != self.direction:
             # Перевіряємо точку повороту
-            target_x = self.rect.x + self.next_direction[0] * 10
-            target_y = self.rect.y + self.next_direction[1] * 10
-            if game_map.can_move(target_x + 17, target_y + 17):
+            target_x = self.rect.x + self.next_direction[0] * 8
+            target_y = self.rect.y + self.next_direction[1] * 8
+            if game_map.can_move(target_x + 13, target_y + 13):
                 # Якщо ми близько до центру клітинки — «стрибаємо» в колію
-                if abs(self.rect.centerx - tile_center_x) < 8 and abs(self.rect.centery - tile_center_y) < 8:
+                if abs(self.rect.centerx - tile_center_x) < 6 and abs(self.rect.centery - tile_center_y) < 6:
                     self.direction = self.next_direction
                     self.rect.centerx, self.rect.centery = tile_center_x, tile_center_y
 

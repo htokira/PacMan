@@ -3,9 +3,9 @@ import sys
 from settings import *
 from menu import Menu
 from map import Map
-from levels import LEVEL1
 from pacman import Pacman
 from energizer import Energizer
+from cli import *
 
 # 1. Ініціалізація Pygame та екрану
 pygame.init()
@@ -13,15 +13,12 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pac-Man Game")
 clock = pygame.time.Clock() 
 
-# 2. Створення основних об'єктів
-activeLevel = LEVEL1
-game_map = Map(screen, activeLevel, WIDTH, HEIGHT)
+player = Pacman(PLAYER_X, PLAYER_Y) 
 
-player = Pacman(210, 159) 
-
-def run_game():
+def run_game(selected_level, selected_color):
     score = 0
     energizer = Energizer()
+    game_map = Map(screen, selected_level, selected_color, WIDTH, HEIGHT)
 
     while True:
         # Очищення 
@@ -64,17 +61,25 @@ def run_game():
         clock.tick(60)
 
 def main():
-    # Створюємо меню
-    menu = Menu(screen)
-    
-    # Викликаємо головне меню
-    action = menu.display_main_menu()
+    args = parse_args()
+    selected_color = COLOR_MAPPING.get(args.color)
 
-    if action == "start_game":
-        run_game()
-    elif action == "quit": # Додано для коректного виходу з меню
-        pygame.quit()
-        sys.exit()
+    if args.level is not None:
+        selected_level = LEVEL_MAPPING.get(args.level)
+        print(f"Starting Game via CLI: Level {args.level}, Color {args.color}")
+        run_game(selected_level, selected_color)
+    else:
+        # Створюємо меню
+        menu = Menu(screen)
+    
+        # Викликаємо головне меню
+        action, selected_level, selected_color  = menu.display_main_menu()
+
+        if action == "start_game":
+            run_game(selected_level, selected_color)
+        elif action == "quit": # Додано для коректного виходу з меню
+            pygame.quit()
+            sys.exit()
 
 if __name__ == "__main__":
     main()
