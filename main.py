@@ -14,17 +14,6 @@ pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
-# Глобальні об'єкти (тільки ті, що не залежать від вибору рівня)
-# У файлі main.py змініть список ghosts:
-tile = 34
-ghosts = [
-    # Координата 13*tile по Y ставить їх всередину синього квадрата
-    Ghost("Blinky", "blinky.png", 11*tile, 9*tile, tile, (WIDTH, 0), 2),
-    Ghost("Pinky", "pinky.png", 9*tile, 9*tile, tile, (0, 0), 6),
-    Ghost("Inky", "inky.png", 12*tile, 9*tile, tile, (WIDTH, HEIGHT), 10),
-    Ghost("Clyde", "clyde.png", 10*tile, 9*tile, tile, (0, HEIGHT), 14)
-]
-
 def run_game(selected_level, selected_color):
     score = 0
     lives = 3
@@ -32,7 +21,17 @@ def run_game(selected_level, selected_color):
     
     # Ініціалізація карти та гравця всередині функції
     game_map = Map(screen, selected_level, selected_color, WIDTH, HEIGHT)
-    player = Pacman(210, 159) 
+
+    tile = 34
+
+    player = Pacman(PLAYER_X, PLAYER_Y) 
+    ghosts = [
+        Ghost("Blinky", "blinky.png", 11*tile, 9*tile, tile, (WIDTH, 0), 2),
+        Ghost("Pinky", "pinky.png", 9*tile, 9*tile, tile, (0, 0), 6),
+        Ghost("Inky", "inky.png", 12*tile, 9*tile, tile, (WIDTH, HEIGHT), 10),
+        Ghost("Clyde", "clyde.png", 10*tile, 9*tile, tile, (0, HEIGHT), 14)
+    ]
+
     energizer = Energizer()
 
     while True:
@@ -62,7 +61,7 @@ def run_game(selected_level, selected_color):
                 lives -= 1
                 pygame.time.delay(1000)
                 if lives > 0:
-                    player.rect.topleft = (210, 159)
+                    player.rect.topleft = (PLAYER_X, PLAYER_Y)
                     player.direction = (0, 0)
                 else:
                     return # Game Over

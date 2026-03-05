@@ -19,14 +19,12 @@ class Ghost:
         self.blue_image = pygame.transform.scale(pygame.image.load(blue_path).convert_alpha(), (self.draw_size, self.draw_size))
         
         self.image = self.normal_image
-        
-        # ВИПРАВЛЕНО: Центруємо хитбокс привида всередині тайла
-        offset = (tile_size - self.draw_size) // 2
-        self.rect = self.image.get_rect(topleft=(x + offset, y + offset))
+
+        self.rect = self.image.get_rect(center=(x + tile_size // 2, y + tile_size // 2))
         
         self.speed = 2
         self.stunned_speed = 1
-        self.exit_speed = 3
+        self.exit_speed = 2
         self.direction = (0, -self.speed)
         
         self.mode = "WAITING"
@@ -49,10 +47,13 @@ class Ghost:
             # 2. ЛІНІЯ СТОП: Рівень білої полоски (9-й тайл)
             gate_y = 8 * self.tile_size 
 
-            # КРОК А: Вирівнювання (спочатку тільки вбік)
-            if abs(self.rect.centerx - target_center_x) > 2:
-                self.rect.x += self.exit_speed if self.rect.centerx < target_center_x else -self.exit_speed
+            # КРОК А: Вирівнювання
+            dist_x = target_center_x - self.rect.centerx
+            if abs(dist_x) > self.exit_speed:
+                self.rect.x += self.exit_speed if dist_x > 0 else -self.exit_speed
                 return # НЕ ЙДЕМО ВГОРУ, поки не стали по центру
+            else:
+                self.rect.centerx = target_center_x
 
             # КРОК Б: Рух вгору ТІЛЬКИ до білої лінії
             if self.rect.y > gate_y:
@@ -61,8 +62,7 @@ class Ghost:
             else:
                 # МИТТЄВА ЗМІНА РЕЖИМУ: тепер привид бачить стіни
                 self.mode = "CHASE"
-                self.rect.centerx = target_center_x
-                self.rect.centery = gate_y - (self.tile_size // 2) # Фіксуємо на рівні проходу
+                self.rect.y = gate_y - (self.tile_size // 2)
                 self.direction = (0, -self.speed)
 
         # --- РЕЖИМ ПІСЛЯ ВИХОДУ: СТІНИ НЕПРОХІДНІ ---
