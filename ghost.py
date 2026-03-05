@@ -14,10 +14,12 @@ class Ghost:
         
         full_path = os.path.join("assets", filename)
         blue_path = os.path.join("assets", "blue_ghost.png")
+        eyes_path = os.path.join("assets", "eyes.png")
         
         # Масштабуємо зображеннія під новий розмір
         self.normal_image = pygame.transform.scale(pygame.image.load(full_path).convert_alpha(), (self.draw_size, self.draw_size))
         self.blue_image = pygame.transform.scale(pygame.image.load(blue_path).convert_alpha(), (self.draw_size, self.draw_size))
+        self.eyes_image = pygame.transform.scale(pygame.image.load(eyes_path).convert_alpha(), (self.draw_size, self.draw_size))
     
         self.image = self.normal_image
         self.rect = self.image.get_rect(center=self.spawn_pos)
@@ -36,10 +38,12 @@ class Ghost:
         current_time = time.time()
 
         if self.mode == "RETURNING":
+            self.image = self.eyes_image
             self.fly_home()
             return
         
         if self.mode == "WAITING":
+            self.image = self.normal_image
             if current_time - self.start_time >= self.release_delay:
                 self.mode = "EXITING"
             return
@@ -102,8 +106,6 @@ class Ghost:
             self.direction = (0, -self.speed)
         else:
             self.mode = "RETURNING"
-
-        self.image = self.normal_image
 
     def fly_home(self):
         target_x, target_y = self.spawn_pos
