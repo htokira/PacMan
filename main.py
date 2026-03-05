@@ -134,7 +134,7 @@ def run_game(selected_level, selected_color, is_cli=False):
         score += added_score
 
         if game_map.is_clear(): 
-            win_scr = WinScreen(screen, is_cli=is_cli)
+            win_scr = WinScreen(screen, score, is_cli=is_cli)
             win_scr.display()
             return
 
@@ -142,7 +142,7 @@ def run_game(selected_level, selected_color, is_cli=False):
             lives -= 1
             energizer.deactivate()
             if lives <= 0:
-                game_over = GameOverScreen(screen, is_cli=is_cli)
+                game_over = GameOverScreen(screen, score, is_cli=is_cli)
                 game_over.display()
                 return
             
