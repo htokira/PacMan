@@ -4,8 +4,9 @@ import sys
 from settings import *
 
 class GameOverScreen:
-    def __init__(self, screen):
+    def __init__(self, screen, is_cli = False):
         self.screen = screen
+        self.is_cli = is_cli
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
         self.init_fonts()
 
@@ -26,7 +27,8 @@ class GameOverScreen:
 
         back_btn_rect = pygame.Rect(0, 0, 370, 60)
         back_btn_rect.center = (WIDTH // 2, 400)
-        back_text = self.button_font.render("MAIN MENU", True, BLACK)
+        button_label = "EXIT" if self.is_cli else "MAIN MENU"
+        back_text = self.button_font.render(button_label, True, BLACK)
         back_text_rect = back_text.get_rect(center=back_btn_rect.center)
         
         running = True
@@ -46,6 +48,10 @@ class GameOverScreen:
                 
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if back_btn_rect.collidepoint(mouse_pos):
-                        running = False
+                        if self.is_cli:
+                            pygame.quit()
+                            sys.exit()
+                        else:
+                            running = False
         
             pygame.display.update()

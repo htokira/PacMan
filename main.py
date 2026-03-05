@@ -58,7 +58,7 @@ def draw_ui(screen, score, lives):
     
     pygame.draw.line(screen, WHITE, (0, HEIGHT - 65), (WIDTH, HEIGHT - 65), 2)
 
-def run_game(selected_level, selected_color):
+def run_game(selected_level, selected_color, is_cli=False):
     score = 0
     lives = 3
     
@@ -108,7 +108,7 @@ def run_game(selected_level, selected_color):
             lives -= 1
             energizer.deactivate()
             if lives <= 0:
-                game_over = GameOverScreen(screen)
+                game_over = GameOverScreen(screen, is_cli=is_cli)
                 game_over.display()
                 return
             
@@ -132,11 +132,14 @@ def main():
 
     selected_level = None
     selected_color = None
+    is_cli = args.level is not None
 
-    if args.level is not None:
+    if is_cli:
         selected_color = COLOR_MAPPING.get(args.color)
         selected_level = LEVEL_MAPPING.get(args.level)
-        run_game(selected_level, selected_color)
+        run_game(selected_level, selected_color, is_cli=True)
+        pygame.quit()
+        sys.exit()
     
     while True:
         if selected_level is None and selected_color is None:
@@ -146,7 +149,7 @@ def main():
         if isinstance(action_data, tuple) and len(action_data) == 3:
             action, selected_level, selected_color = action_data
             if action == "start_game":
-                run_game(selected_level, selected_color)
+                run_game(selected_level, selected_color, is_cli=False)
             elif action == "quit":
                 pygame.quit(); sys.exit()
 
