@@ -134,7 +134,7 @@ def run_game(selected_level, selected_color, is_cli=False):
         score += added_score
 
         if game_map.is_clear(): 
-            win_scr = WinScreen(screen, is_cli=is_cli)
+            win_scr = WinScreen(screen, score, is_cli=is_cli)
             win_scr.display()
             return
 
