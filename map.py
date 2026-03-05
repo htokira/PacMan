@@ -1,11 +1,13 @@
 import pygame
 import math
 import copy
+from settings import *
 
 class Map:
-    def __init__(self, screen, level_data, width, height):
+    def __init__(self, screen, level_data, level_color, width, height):
         self.screen = screen
         self.level = copy.deepcopy(level_data)
+        self.lvl_color = level_color
         self.width = width
         self.height = height
 
@@ -14,8 +16,16 @@ class Map:
         self.h = (self.height - 50) // self.rows
         self.w = self.width // self.cols
 
+        self.flash_timer = pygame.time.get_ticks() 
+        self.is_energizer_flashing = True
+
     def draw_map(self):
         PI = math.pi
+
+        current_time = pygame.time.get_ticks()
+        if current_time - self.flash_timer > 350:
+            self.is_energizer_flashing = not self.is_energizer_flashing 
+            self.flash_timer = current_time
 
         for i in range(self.rows):
             for j in range(self.cols):
@@ -24,23 +34,24 @@ class Map:
                 center_y = int(i * self.h + (0.5 * self.h))
                 
                 if val == 1:
-                    pygame.draw.circle(self.screen, 'white', (center_x, center_y), 4)
+                    pygame.draw.circle(self.screen, WHITE, (center_x, center_y), 4)
                 elif val == 2:
-                    pygame.draw.circle(self.screen, 'white', (center_x, center_y), 10)
+                    if self.is_energizer_flashing:
+                        pygame.draw.circle(self.screen, WHITE, (center_x, center_y), 10)
                 elif val == 3:
-                    pygame.draw.line(self.screen, 'blue', (center_x, i * self.h), (center_x, i * self.h + self.h), 3) #замінити колір для інших рівнів
+                    pygame.draw.line(self.screen, self.lvl_color, (center_x, i * self.h), (center_x, i * self.h + self.h), 3) #замінити колір для інших рівнів
                 elif val == 4:
-                    pygame.draw.line(self.screen, 'blue', (j * self.w, center_y), (j * self.w + self.w, center_y), 3)
+                    pygame.draw.line(self.screen, self.lvl_color, (j * self.w, center_y), (j * self.w + self.w, center_y), 3)
                 elif val == 5:
-                    pygame.draw.arc(self.screen, 'blue', [(j * self.w - (self.w * 0.5)), (i * self.h + (0.5 * self.h)), self.w, self.h], 0, PI/2, 3)
+                    pygame.draw.arc(self.screen, self.lvl_color, [(j * self.w - (self.w * 0.5)), (i * self.h + (0.5 * self.h)), self.w, self.h], 0, PI/2, 3)
                 elif val == 6:
-                    pygame.draw.arc(self.screen, 'blue', [(j * self.w + (self.w * 0.5)), (i * self.h + (0.5 * self.h)), self.w, self.h], PI/2, PI, 3)
+                    pygame.draw.arc(self.screen, self.lvl_color, [(j * self.w + (self.w * 0.5)), (i * self.h + (0.5 * self.h)), self.w, self.h], PI/2, PI, 3)
                 elif val == 7:
-                    pygame.draw.arc(self.screen, 'blue', [(j * self.w + (self.w * 0.5)), (i * self.h - (0.5 * self.h)), self.w, self.h], PI, 3*PI/2, 3)
+                    pygame.draw.arc(self.screen, self.lvl_color, [(j * self.w + (self.w * 0.5)), (i * self.h - (0.5 * self.h)), self.w, self.h], PI, 3*PI/2, 3)
                 elif val == 8:
-                    pygame.draw.arc(self.screen, 'blue', [(j * self.w - (self.w * 0.5)), (i * self.h - (0.5 * self.h)), self.w, self.h], 3*PI/2, 2*PI, 3)
+                    pygame.draw.arc(self.screen, self.lvl_color, [(j * self.w - (self.w * 0.5)), (i * self.h - (0.5 * self.h)), self.w, self.h], 3*PI/2, 2*PI, 3)
                 elif val == 9:
-                    pygame.draw.line(self.screen, 'white', (j * self.w, center_y), (j * self.w + self.w, center_y), 3)
+                    pygame.draw.line(self.screen, WHITE, (j * self.w, center_y), (j * self.w + self.w, center_y), 3)
 
     #Перевірка чи гравець може йти, викликати перед рухом у методі гравця
     def can_move(self, x, y):
@@ -58,6 +69,7 @@ class Map:
         score = 0
         col = int(x // self.w)
         row = int(y // self.h)
+        energizer_eaten = False
 
         if 0 <= row < self.rows and 0 <= col < self.cols:
             position = self.level[row][col]
@@ -68,6 +80,6 @@ class Map:
             elif position == 2:
                 score = 50
                 self.level[row][col] = 0
-                # логіка енерджайзера
+                energizer_eaten = True
 
-        return score
+        return score, energizer_eaten
