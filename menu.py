@@ -21,6 +21,7 @@ class Menu:
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
         self.selected_level = LEVEL1
         self.selected_color = BLUE
+        self.infinite_mode = False
         self.init_fonts()
         self.init_main_menu()
         self.init_difficulty_menu()
@@ -56,15 +57,19 @@ class Menu:
         self.btn_text = self.button_font.render("PLAY", True, BLACK)
         self.btn_text_rect = self.btn_text.get_rect(center=self.button_rect.center)
 
+        self.inf_text = self.small_button_font.render("INFINITE MODE:", True, WHITE)
+        self.inf_text_rect = self.inf_text.get_rect(topleft=((WIDTH - self.inf_text.get_width()) // 2, 400))
+        self.checkbox_rect = pygame.Rect(self.inf_text_rect.right - 5, 400, 30, 30)
+
         # Difficulty кнопка
         self.diff_btn_rect = pygame.Rect(0, 0, 250, 60)
-        self.diff_btn_rect.center = (WIDTH // 2, 450)
+        self.diff_btn_rect.center = (WIDTH // 2, 480)
         self.diff_text = self.small_button_font.render("DIFFICULTY", True, BLACK)
         self.diff_text_rect = self.diff_text.get_rect(center=self.diff_btn_rect.center)
 
         # Quit кнопка
         self.quit_btn_rect = pygame.Rect(0, 0, 200, 60)
-        self.quit_btn_rect.center = (WIDTH // 2, 550)
+        self.quit_btn_rect.center = (WIDTH // 2, 560)
         self.quit_text = self.button_font.render("QUIT", True, BLACK)
         self.quit_text_rect = self.quit_text.get_rect(center=self.quit_btn_rect.center)
 
@@ -99,6 +104,11 @@ class Menu:
         # Play кнопка
         pygame.draw.rect(self.screen, YELLOW, self.button_rect)
         self.screen.blit(self.btn_text, self.btn_text_rect)
+
+        self.screen.blit(self.inf_text, self.inf_text_rect)
+        pygame.draw.rect(self.screen, WHITE, self.checkbox_rect, 2)
+        if self.infinite_mode:
+            pygame.draw.rect(self.screen, YELLOW, self.checkbox_rect.inflate(-8, -8))
 
         # Difficulty кнопка
         pygame.draw.rect(self.screen, YELLOW, self.diff_btn_rect)
@@ -177,7 +187,10 @@ class Menu:
                 
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if self.button_rect.collidepoint(mouse_pos):
-                        return "start_game", self.selected_level, self.selected_color
+                        return "start_game", self.selected_level, self.selected_color, self.infinite_mode
+                    
+                    if self.checkbox_rect.collidepoint(mouse_pos):
+                        self.infinite_mode = not self.infinite_mode
                         
                     if self.diff_btn_rect.collidepoint(mouse_pos):
                         self.display_difficulty_menu()
