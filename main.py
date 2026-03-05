@@ -1,63 +1,87 @@
 import pygame
 import sys
+import time
 from settings import *
 from menu import Menu
 from map import Map
 from pacman import Pacman
+from ghost import Ghost
 from energizer import Energizer
 from cli import *
 
-# 1. Ініціалізація Pygame та екрану
+# Ініціалізація Pygame
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Pac-Man Game")
-clock = pygame.time.Clock() 
+clock = pygame.time.Clock()
 
-player = Pacman(PLAYER_X, PLAYER_Y) 
+# Глобальні об'єкти (тільки ті, що не залежать від вибору рівня)
+# У файлі main.py змініть список ghosts:
+tile = 34
+ghosts = [
+    # Координата 13*tile по Y ставить їх всередину синього квадрата
+    Ghost("Blinky", "blinky.png", 11*tile, 9*tile, tile, (WIDTH, 0), 2),
+    Ghost("Pinky", "pinky.png", 9*tile, 9*tile, tile, (0, 0), 6),
+    Ghost("Inky", "inky.png", 12*tile, 9*tile, tile, (WIDTH, HEIGHT), 10),
+    Ghost("Clyde", "clyde.png", 10*tile, 9*tile, tile, (0, HEIGHT), 14)
+]
 
 def run_game(selected_level, selected_color):
     score = 0
-    energizer = Energizer()
+    lives = 3
+    start_ticks = time.time() # Ініціалізація для global_mode
+    
+    # Ініціалізація карти та гравця всередині функції
     game_map = Map(screen, selected_level, selected_color, WIDTH, HEIGHT)
+    player = Pacman(210, 159) 
+    energizer = Energizer()
 
     while True:
-        # Очищення 
-        screen.fill(BLACK)
-        
-        # Відображення рахунку в заголовку вікна
-        pygame.display.set_caption(f"Pac-Man | Score: {score}")
+        # 1. Розрахунок часу та режиму
+        elapsed = (time.time() - start_ticks) % 30
+        global_mode = "STUNNED" if elapsed > 20 else "CHASE"
 
-        # --- ЛОГІКА ТА ОНОВЛЕННЯ ---
-        
-        # Обробка подій (вихід з гри)
+        # 2. Обробка подій
+        screen.fill(BLACK)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                pygame.quit(); sys.exit()
         
-        # Малюємо карту (стіни та точки)
+        # 3. Оновлення об'єктів
+        pygame.display.set_caption(f"Pac-Man | Score: {score} | Lives: {lives}")
         game_map.draw_map()
-        
-        # Оновлюємо Пакмена (рух, анімація та "рейкова" логіка)
         player.update(game_map)
 
-        energizer.update()
-        
-        # Перевірка на з'їдання точок/енерджайзерів
-        # Використовуємо центр спрайта для більш точного поїдання
+        # Координати Блінкі для логіки інших привидів
+        blinky_pos = (ghosts[0].rect.centerx, ghosts[0].rect.centery)
+
+        for ghost in ghosts:
+            # Передаємо рівно 4 аргументи + self
+            ghost.update(player, game_map, blinky_pos, global_mode)
+            
+            if player.rect.colliderect(ghost.rect):
+                lives -= 1
+                pygame.time.delay(1000)
+                if lives > 0:
+                    player.rect.topleft = (210, 159)
+                    player.direction = (0, 0)
+                else:
+                    return # Game Over
+
+        # 4. Збір крапок та енерджайзерів
         points, is_energizer = game_map.collision_with_objects(player.rect.centerx, player.rect.centery)
         score += points
 
         if is_energizer:
             energizer.activate()
-
-        # --- МАЛЮВАННЯ ---
-        player.draw(screen)
-
-        # Оновлення екрану
-        pygame.display.flip()
         
-        # Обмеження FPS (60 кадрів на секунду)
+        energizer.update()
+
+        # 5. Малювання
+        player.draw(screen)
+        for ghost in ghosts: 
+            ghost.draw(screen)
+
+        pygame.display.flip()
         clock.tick(60)
 
 def main():
@@ -66,20 +90,19 @@ def main():
 
     if args.level is not None:
         selected_level = LEVEL_MAPPING.get(args.level)
-        print(f"Starting Game via CLI: Level {args.level}, Color {args.color}")
         run_game(selected_level, selected_color)
     else:
-        # Створюємо меню
         menu = Menu(screen)
-    
-        # Викликаємо головне меню
-        action, selected_level, selected_color  = menu.display_main_menu()
-
-        if action == "start_game":
-            run_game(selected_level, selected_color)
-        elif action == "quit": # Додано для коректного виходу з меню
-            pygame.quit()
-            sys.exit()
+        # Отримуємо вибір з меню
+        action_data = menu.display_main_menu()
+        
+        # Перевірка структури відповіді меню
+        if isinstance(action_data, tuple) and len(action_data) == 3:
+            action, selected_level, selected_color = action_data
+            if action == "start_game":
+                run_game(selected_level, selected_color)
+            elif action == "quit":
+                pygame.quit(); sys.exit()
 
 if __name__ == "__main__":
     main()
