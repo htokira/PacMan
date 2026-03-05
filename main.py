@@ -8,11 +8,17 @@ from pacman import Pacman
 from ghost import Ghost
 from energizer import Energizer
 from cli import *
+import os
 
 # Ініціалізація Pygame
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
+
+try:
+    UI_FONT = pygame.font.Font("fonts/Emulogic-font.ttf", 20)
+except:
+    UI_FONT = pygame.font.SysFont("Arial", 20)
 
 def process_collisions(player, ghosts, game_map, energizer):
     total_points = 0
@@ -28,12 +34,30 @@ def process_collisions(player, ghosts, game_map, energizer):
 
     for ghost in ghosts:
         if player.rect.colliderect(ghost.rect):
-            points, killed = ghost.handle_player_collision()
-            total_points += points
+            ghost_eaten, killed = ghost.handle_player_collision()
+            
+            if ghost_eaten:
+                total_points += energizer.get_next_ghost_score()
+
             if killed:
                 death_occurred = True
                 
     return total_points, death_occurred
+
+def draw_ui(screen, score, lives):
+
+    score_surface = UI_FONT.render(f"SCORE: {score}", True, WHITE)
+    lives_surface = UI_FONT.render(f"LIVES: {lives}", True, WHITE)
+    
+    padding = 20
+    ui_y_position = HEIGHT - 45 
+
+    screen.blit(score_surface, (padding, ui_y_position))
+    
+    lives_x = WIDTH - lives_surface.get_width() - padding
+    screen.blit(lives_surface, (lives_x, ui_y_position))
+    
+    pygame.draw.line(screen, WHITE, (0, HEIGHT - 65), (WIDTH, HEIGHT - 65), 2)
 
 def run_game(selected_level, selected_color):
     score = 0
@@ -65,6 +89,8 @@ def run_game(selected_level, selected_color):
         pygame.display.set_caption(f"Pac-Man | Score: {score} | Lives: {lives}")
         game_map.draw_map()
 
+        draw_ui(screen, score, lives)
+
         player.update(game_map)
         energizer.update()
         is_expiring = energizer.is_about_to_expire()
@@ -81,6 +107,7 @@ def run_game(selected_level, selected_color):
 
         if is_dead:
             lives -= 1
+            energizer.deactivate()
             if lives <= 0:
                 return  # Game Over
             
