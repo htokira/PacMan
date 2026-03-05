@@ -1,6 +1,5 @@
 import pygame
 import sys
-import time
 from settings import *
 from menu import Menu
 from map import Map
@@ -8,7 +7,7 @@ from pacman import Pacman
 from ghost import Ghost
 from energizer import Energizer
 from cli import *
-import os
+from game_over import GameOverScreen
 
 # Ініціалізація Pygame
 pygame.init()
@@ -109,7 +108,9 @@ def run_game(selected_level, selected_color):
             lives -= 1
             energizer.deactivate()
             if lives <= 0:
-                return  # Game Over
+                game_over = GameOverScreen(screen)
+                game_over.display()
+                return
             
             player.rect.topleft = (PLAYER_X, PLAYER_Y)
             player.direction = (0, 0)
