@@ -6,7 +6,8 @@ from settings import *
 class Map:
     def __init__(self, screen, level_data, level_color, width, height):
         self.screen = screen
-        self.level = copy.deepcopy(level_data)
+        self.initial_layout = level_data
+        self.level = copy.deepcopy(self.initial_layout)
         self.lvl_color = level_color
         self.width = width
         self.height = height
@@ -86,8 +87,14 @@ class Map:
     
     def is_clear(self):
         """Перевіряє, чи залишилася на карті їжа або енерджайзери."""
-        
+
         for row in self.level:
             if 1 in row or 2 in row:
                 return False
         return True
+    
+    def reset_map(self):
+        """Відновлює всі крапки та енерджайзери на карті."""
+
+        self.level = copy.deepcopy(self.initial_layout)
+        self.flash_timer = pygame.time.get_ticks()
