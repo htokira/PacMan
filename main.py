@@ -20,9 +20,27 @@ except:
     UI_FONT = pygame.font.SysFont("Arial", 20)
 
 def process_collisions(player, ghosts, game_map, energizer):
+    """
+    Обробляє зіткнення у грі з об'єктами карти та привидами.
+    
+    Перевіряє взаємодію гравця з крапками, енерджайзерами та привидами,
+    оновлює стан енерджайзера та розраховує отримані бали.
+
+    Args:
+        player (Pacman): Об'єкт гравця для перевірки колізій.
+        ghosts (list): Список об'єктів Ghost, присутніх на рівні.
+        game_map (Map): Об'єкт карти для взаємодії з предметами.
+        energizer (Energizer): Об'єкт для керування станом вразливості привидів.
+
+    Returns:
+        tuple: (total_points, death_occurred), де:
+            total_points (int) — кількість балів, зароблених за поточний кадр;
+            death_occurred (bool) — True, якщо гравець загинув від зіткнення з привидом, інакше - False.
+    """
     total_points = 0
     death_occurred = False
 
+    # Обробка зіткнень з крапками та енерджайзерами
     points, is_energizer = game_map.collision_with_objects(player.rect.centerx, player.rect.centery)
     total_points += points
     
@@ -31,6 +49,7 @@ def process_collisions(player, ghosts, game_map, energizer):
         for ghost in ghosts:
             ghost.start_vulnerable()
 
+    # Обробка зіткнень з привидами
     for ghost in ghosts:
         if player.rect.colliderect(ghost.rect):
             ghost_eaten, killed = ghost.handle_player_collision()
@@ -44,7 +63,16 @@ def process_collisions(player, ghosts, game_map, energizer):
     return total_points, death_occurred
 
 def draw_ui(screen, score, lives):
+    """
+    Відображає інтерфейс користувача у нижній частині екрана під час гри.
+    
+    Рендерить текстові поверхні та малює роздільну лінію під ігровим полем.
 
+    Args:
+        screen (pygame.Surface): Поверхня екрана для малювання.
+        score (int): Поточний рахунок гравця.
+        lives (int): Поточна кількість житів гравця.
+    """
     score_surface = UI_FONT.render(f"SCORE: {score}", True, WHITE)
     lives_surface = UI_FONT.render(f"LIVES: {lives}", True, WHITE)
     

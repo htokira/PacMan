@@ -5,9 +5,19 @@ from settings import *
 from levels import *
 
 class Menu:
+    """
+    Клас для керування ігровим меню.
+    Відповідає за відображення головного меню та меню вибору складності, завантаження шрифтів та обробку вибору користувача.
+    """
     def __init__(self, screen):
+        """
+        Ініціалізує об'єкт меню.
+
+        Args:
+            screen (pygame.Surface): Поверхня екрана, на якій буде малюватися меню.
+        """
         self.screen = screen
-        # Визначаємо шлях до папки, де лежить цей файл (menu.py)
+        # Шлях до папки, де лежить цей файл
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
         self.selected_level = LEVEL1
         self.selected_color = BLUE
@@ -16,13 +26,14 @@ class Menu:
         self.init_difficulty_menu()
 
     def init_fonts(self):
-        # Будуємо шлях до файлу шрифту відносно поточної папки
+        """
+        Завантажує кастомний шрифт або встановлює системний як запасний.
+        """
         font_path = os.path.join(self.current_dir, 'fonts', 'Emulogic-font.ttf')
-        
-        # Перевіряємо, чи існує файл, щоб вивести зрозумілу помилку, якщо щось не так
+
         if not os.path.exists(font_path):
             print(f"ERROR: Font file not found at {font_path}")
-            # Можна використати системний шрифт як запасний варіант
+            # Системний шрифт
             self.font = pygame.font.SysFont('Arial', 75)
             self.button_font = pygame.font.SysFont('Arial', 40)
             self.small_button_font = pygame.font.SysFont('Arial', 25)
@@ -32,33 +43,39 @@ class Menu:
             self.small_button_font = pygame.font.Font(font_path, 25)
         
     def init_main_menu(self):
-        # Title
+        """
+        Створює текстові поверхні та прямокутники для кнопок головного меню.
+        """
+        # Заголовок
         self.title_text = self.font.render("PAC-MAN", True, WHITE)
         self.title_rect = self.title_text.get_rect(center = (WIDTH // 2, 150))
 
-        # Start game button
+        # Start game кнопка
         self.button_rect = pygame.Rect(0, 0, 200, 60)
         self.button_rect.center = (WIDTH // 2, 350)
         self.btn_text = self.button_font.render("PLAY", True, BLACK)
         self.btn_text_rect = self.btn_text.get_rect(center=self.button_rect.center)
 
-        # Difficulty button
+        # Difficulty кнопка
         self.diff_btn_rect = pygame.Rect(0, 0, 250, 60)
         self.diff_btn_rect.center = (WIDTH // 2, 450)
         self.diff_text = self.small_button_font.render("DIFFICULTY", True, BLACK)
         self.diff_text_rect = self.diff_text.get_rect(center=self.diff_btn_rect.center)
 
-        # Quit button
+        # Quit кнопка
         self.quit_btn_rect = pygame.Rect(0, 0, 200, 60)
         self.quit_btn_rect.center = (WIDTH // 2, 550)
         self.quit_text = self.button_font.render("QUIT", True, BLACK)
         self.quit_text_rect = self.quit_text.get_rect(center=self.quit_btn_rect.center)
 
     def init_difficulty_menu(self):
+        """
+        Створює текстові поверхні та прямокутники для меню вибору складності.
+        """
         self.diff_title = self.button_font.render("SELECT DIFFICULTY", True, YELLOW)
         self.diff_title_rect = self.diff_title.get_rect(center=(WIDTH // 2, 100))
 
-        # Difficulty options
+        # Опції складності
         self.easy_text = self.small_button_font.render("EASY", True, WHITE)
         self.easy_rect = self.easy_text.get_rect(center=(WIDTH // 2, 220))
 
@@ -68,27 +85,33 @@ class Menu:
         self.hard_text = self.small_button_font.render("HARD", True, WHITE)
         self.hard_rect = self.hard_text.get_rect(center=(WIDTH // 2, 380))
         
-        # Back
+        # Назад
         self.back_text = self.small_button_font.render("BACK", True, WHITE)
         self.back_rect = self.back_text.get_rect(center=(WIDTH // 2, 500))
 
     def draw_main_menu(self):
+        """
+        Малює всі елементи головного меню на екрані.
+        """
         self.screen.fill(BLACK)   
         self.screen.blit(self.title_text, self.title_rect)
 
-        # Play button
+        # Play кнопка
         pygame.draw.rect(self.screen, YELLOW, self.button_rect)
         self.screen.blit(self.btn_text, self.btn_text_rect)
 
-        # Difficulty button
+        # Difficulty кнопка
         pygame.draw.rect(self.screen, YELLOW, self.diff_btn_rect)
         self.screen.blit(self.diff_text, self.diff_text_rect)
 
-        # Quit button
+        # Quit кнопка
         pygame.draw.rect(self.screen, YELLOW, self.quit_btn_rect)
         self.screen.blit(self.quit_text, self.quit_text_rect)
 
     def draw_difficulty_menu(self):
+        """
+        Малює всі елементи меню складності на екрані.
+        """
         self.screen.fill(BLACK)   
         self.screen.blit(self.diff_title, self.diff_title_rect)
         self.screen.blit(self.easy_text, self.easy_rect)
@@ -97,6 +120,10 @@ class Menu:
         self.screen.blit(self.back_text, self.back_rect)
         
     def display_difficulty_menu(self):
+        """
+        Запускає цикл обробки подій для меню складності.
+        Дозволяє користувачеві вибрати рівень або повернутися назад.
+        """
         running = True
         while running:
             mouse_pos = pygame.mouse.get_pos()
@@ -124,11 +151,23 @@ class Menu:
             pygame.display.update()
 
     def handle_quit_event(self, event):
+        """
+        Перевіряє, чи була ініційована подія виходу з програми.
+
+        Args:
+            event (pygame.event.Event): Подія Pygame для перевірки.
+        """
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         
     def display_main_menu(self):
+        """
+        Запускає цикл обробки подій для головного меню.
+
+        Returns:
+            tuple: Кортеж ("start_game", level, color), якщо натиснута кнопка Play.
+        """
         while True:
             mouse_pos = pygame.mouse.get_pos()
             self.draw_main_menu()

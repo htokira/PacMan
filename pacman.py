@@ -86,6 +86,15 @@ class Pacman:
         self.update_animation()
     
     def load_frames(self, prefix):
+        """
+        Завантажує кадри анімації з папки.
+
+        Args:
+            prefix (str): Текстовий префікс для назви файлів спрайтів.
+
+        Returns:
+            list: Список об'єктів pygame.Surface, що містять завантажені та масштабовані кадри.
+        """
         frames = []
         for i in range(1, 4):
             path = f"assets/pacman/{prefix}_{i}.png"
@@ -99,6 +108,9 @@ class Pacman:
         return frames
     
     def update_animation(self):
+        """
+        Керує циклом анімації Пакмена.
+        """
         if self.direction != (0, 0): # Програється анімація
             self.anim_timer += self.anim_speed
 
@@ -113,6 +125,9 @@ class Pacman:
         self.image = self.sprites[self.look_direction][self.frame_index]
     
     def update_look_direction(self):
+        """
+        Визначає напрямок Пакмена для вибору відповідного набору спрайтів.
+        """
         if self.direction == (-self.speed, 0): self.look_direction = "left"
         elif self.direction == (self.speed, 0): self.look_direction = "right"
         elif self.direction == (0, -self.speed): self.look_direction = "up"
