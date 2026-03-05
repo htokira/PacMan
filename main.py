@@ -91,19 +91,9 @@ def run_game(selected_level, selected_color):
             player.rect.topleft = (PLAYER_X, PLAYER_Y)
             player.direction = (0, 0)
             for ghost in ghosts:
-                ghost.reset()
-                pygame.time.delay(1000)
-
-        # 4. Збір крапок та енерджайзерів
-        points, is_energizer = game_map.collision_with_objects(player.rect.centerx, player.rect.centery)
-        score += points
-
-        if is_energizer:
-            energizer.activate()
-            for ghost in ghosts:
-                if ghost.mode != "WAITING" and ghost.mode != "EXITING":
-                    ghost.reverse_direction()
-
+                ghost.reset(instant=True)
+            pygame.time.delay(1000)
+            
         # 5. Малювання
         player.draw(screen)
         for ghost in ghosts: 

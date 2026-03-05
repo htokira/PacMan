@@ -7,7 +7,8 @@ class Ghost:
     def __init__(self, name, filename, x, y, tile_size, scatter_pos, release_delay=0):
         self.name = name
         self.tile_size = tile_size
-        
+        self.spawn_pos = (x + tile_size // 2, y + tile_size // 2)
+
         # ВИПРАВЛЕНО: Зменшуємо розмір привида до 80% від тайла
         self.draw_size = int(tile_size * 0.8)
         
@@ -17,14 +18,14 @@ class Ghost:
         # Масштабуємо зображеннія під новий розмір
         self.normal_image = pygame.transform.scale(pygame.image.load(full_path).convert_alpha(), (self.draw_size, self.draw_size))
         self.blue_image = pygame.transform.scale(pygame.image.load(blue_path).convert_alpha(), (self.draw_size, self.draw_size))
-        
+    
         self.image = self.normal_image
+        self.rect = self.image.get_rect(center=self.spawn_pos)
 
-        self.rect = self.image.get_rect(center=(x + tile_size // 2, y + tile_size // 2))
-        
         self.speed = 2
         self.stunned_speed = 1
         self.exit_speed = 2
+        self.return_speed = 4
         self.direction = (0, -self.speed)
         
         self.mode = "WAITING"
@@ -34,6 +35,10 @@ class Ghost:
     def update(self, player, game_map, blinky_pos, global_mode):
         current_time = time.time()
 
+        if self.mode == "RETURNING":
+            self.fly_home()
+            return
+        
         if self.mode == "WAITING":
             if current_time - self.start_time >= self.release_delay:
                 self.mode = "EXITING"
@@ -89,20 +94,41 @@ class Ghost:
         self.rect.x += direction_x
         self.rect.y += direction_y
 
-    def reset(self):
-        spawn_x = self.rect.centerx // self.tile_size
-        spawn_y = self.rect.centery // self.tile_size
-        self.rect.center = (spawn_x * self.tile_size + self.tile_size // 2, 
-                            spawn_y * self.tile_size + self.tile_size // 2)
-        self.mode = "WAITING"
-        self.start_time = time.time()
+    def reset(self, instant=False):
+        if instant:
+            self.rect.center = self.spawn_pos
+            self.mode = "WAITING"
+            self.start_time = time.time()
+            self.direction = (0, -self.speed)
+        else:
+            self.mode = "RETURNING"
+
         self.image = self.normal_image
 
+    def fly_home(self):
+        target_x, target_y = self.spawn_pos
+        dist = self.calculate_distance(self.rect.centerx, self.rect.centery, target_x, target_y)
+        
+        if dist > self.return_speed:
+            dx = (target_x - self.rect.centerx) / dist
+            dy = (target_y - self.rect.centery) / dist
+        
+            self.rect.x += dx * self.return_speed
+            self.rect.y += dy * self.return_speed
+        else: # Прилетів
+            self.rect.center = self.spawn_pos
+            self.mode = "WAITING"
+            self.start_time = time.time()
+
     def handle_player_collision(self, is_vulnerable):
-        if is_vulnerable:
-            self.reset()
+        if self.mode == "RETURNING": 
+            return 0, False
+        
+        if is_vulnerable: # Помер і летить додому
+            self.reset(instant=False)
             return 200, False
-        return 0, True
+        
+        return 0, True 
 
     def normalize_direction(self, speed):
         dir_x = speed if self.direction[0] > 0 else -speed if self.direction[0] < 0 else 0
