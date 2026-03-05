@@ -89,6 +89,21 @@ class Ghost:
         self.rect.x += direction_x
         self.rect.y += direction_y
 
+    def reset(self):
+        spawn_x = self.rect.centerx // self.tile_size
+        spawn_y = self.rect.centery // self.tile_size
+        self.rect.center = (spawn_x * self.tile_size + self.tile_size // 2, 
+                            spawn_y * self.tile_size + self.tile_size // 2)
+        self.mode = "WAITING"
+        self.start_time = time.time()
+        self.image = self.normal_image
+
+    def handle_player_collision(self, is_vulnerable):
+        if is_vulnerable:
+            self.reset()
+            return 200, False
+        return 0, True
+
     def normalize_direction(self, speed):
         dir_x = speed if self.direction[0] > 0 else -speed if self.direction[0] < 0 else 0
         dir_y = speed if self.direction[1] > 0 else -speed if self.direction[1] < 0 else 0

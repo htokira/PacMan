@@ -14,6 +14,28 @@ pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
+def process_collisions(player, ghosts, game_map, energizer):
+    total_points = 0
+    death_occurred = False
+
+    points, is_energizer = game_map.collision_with_objects(player.rect.centerx, player.rect.centery)
+    total_points += points
+    
+    if is_energizer:
+        energizer.activate()
+        for ghost in ghosts:
+            if ghost.mode not in ["WAITING", "EXITING"]:
+                ghost.reverse_direction()
+
+    for ghost in ghosts:
+        if player.rect.colliderect(ghost.rect):
+            points, killed = ghost.handle_player_collision(energizer.is_active())
+            total_points += points
+            if killed:
+                death_occurred = True
+                
+    return total_points, death_occurred
+
 def run_game(selected_level, selected_color):
     score = 0
     lives = 3
@@ -51,31 +73,26 @@ def run_game(selected_level, selected_color):
         # 3. Оновлення об'єктів
         pygame.display.set_caption(f"Pac-Man | Score: {score} | Lives: {lives}")
         game_map.draw_map()
-        player.update(game_map)
 
+        player.update(game_map)
         energizer.update()
 
-        # Координати Блінкі для логіки інших привидів
-        blinky_pos = (ghosts[0].rect.centerx, ghosts[0].rect.centery)
+        for ghost in ghosts:  
+            ghost.update(player, game_map, ghosts[0].rect.center, global_mode)
+        
+        added_score, is_dead = process_collisions(player, ghosts, game_map, energizer)
+        score += added_score
 
-        for ghost in ghosts:
-            # Передаємо рівно 4 аргументи + self
-            ghost.update(player, game_map, blinky_pos, global_mode)
+        if is_dead:
+            lives -= 1
+            if lives <= 0:
+                return  # Game Over
             
-            if player.rect.colliderect(ghost.rect):
-                if global_mode == "STUNNED": # З'їв 
-                    ghost.rect.center = (10 * 34, 9 * 34)
-                    ghost.mode = "WAITING"
-                    ghost.start_time = time.time()
-                    score += 200
-                else: # Смерть
-                    lives -= 1
-                    pygame.time.delay(1000)
-                    if lives > 0:
-                        player.rect.topleft = (PLAYER_X, PLAYER_Y)
-                        player.direction = (0, 0)
-                    else:
-                        return # Game Over
+            player.rect.topleft = (PLAYER_X, PLAYER_Y)
+            player.direction = (0, 0)
+            for ghost in ghosts:
+                ghost.reset()
+                pygame.time.delay(1000)
 
         # 4. Збір крапок та енерджайзерів
         points, is_energizer = game_map.collision_with_objects(player.rect.centerx, player.rect.centery)
