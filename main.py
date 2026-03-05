@@ -67,13 +67,14 @@ def run_game(selected_level, selected_color):
 
         player.update(game_map)
         energizer.update()
+        is_expiring = energizer.is_about_to_expire()
 
         if not energizer.is_active():
             for ghost in ghosts:
                 ghost.stop_vulnerable()
                 
         for ghost in ghosts:  
-            ghost.update(player, game_map, ghosts[0].rect.center)
+            ghost.update(player, game_map, ghosts[0].rect.center, vulnerability_expiring=is_expiring)
         
         added_score, is_dead = process_collisions(player, ghosts, game_map, energizer)
         score += added_score

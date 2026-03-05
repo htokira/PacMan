@@ -49,7 +49,7 @@ class Ghost:
         self.is_vulnerable = False
         self.start_time = time.time()
     
-    def update(self, player, game_map, blinky_pos):
+    def update(self, player, game_map, blinky_pos, vulnerability_expiring=False):
         self.update_animation()
         current_time = time.time()
 
@@ -58,8 +58,19 @@ class Ghost:
             self.fly_home()
             return
         
-        current_frames = self.blue_frames if self.is_vulnerable else self.normal_frames
-        self.image = current_frames[self.frame_index]
+        if self.is_vulnerable:
+            if vulnerability_expiring:
+                if int(current_time * 5) % 2 == 0:
+                    current_frames = self.white_frames
+                else:
+                    current_frames = self.blue_frames
+            else:
+                current_frames = self.blue_frames
+                
+            self.image = current_frames[self.frame_index]
+            
+        else:
+            self.image = self.normal_frames[self.frame_index]
         
         if self.mode == "WAITING":
             if current_time - self.start_time >= self.release_delay:
