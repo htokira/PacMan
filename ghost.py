@@ -32,9 +32,10 @@ class Ghost:
         
         self.mode = "WAITING"
         self.release_delay = release_delay
+        self.is_vulnerable = False
         self.start_time = time.time()
-
-    def update(self, player, game_map, blinky_pos, global_mode):
+    
+    def update(self, player, game_map, blinky_pos):
         current_time = time.time()
 
         if self.mode == "RETURNING":
@@ -42,8 +43,12 @@ class Ghost:
             self.fly_home()
             return
         
-        if self.mode == "WAITING":
+        if self.is_vulnerable:
+            self.image = self.blue_image
+        else:
             self.image = self.normal_image
+        
+        if self.mode == "WAITING":
             if current_time - self.start_time >= self.release_delay:
                 self.mode = "EXITING"
             return
@@ -74,14 +79,18 @@ class Ghost:
                 self.rect.y = gate_y - (self.tile_size // 2)
                 self.direction = (0, -self.speed)
 
-        # --- РЕЖИМ ПІСЛЯ ВИХОДУ: СТІНИ НЕПРОХІДНІ ---
-        if global_mode == "STUNNED":
-            self.image = self.blue_image
-            self.move_logic(player, game_map, blinky_pos, is_vulnerable=True)
-        else:
-            self.image = self.normal_image
-            self.move_logic(player, game_map, blinky_pos, is_vulnerable=False)
+        self.move_logic(player, game_map, blinky_pos, is_vulnerable=self.is_vulnerable)
 
+    def start_vulnerable(self):
+       if self.mode != "RETURNING" and not self.is_vulnerable:
+            self.is_vulnerable = True
+            if self.mode == "CHASE":
+                self.reverse_direction()
+
+
+    def stop_vulnerable(self):
+        self.is_vulnerable = False
+            
     def move_logic(self, player, game_map, blinky_pos, is_vulnerable=False):
         current_speed = self.stunned_speed if is_vulnerable else self.speed
         check_offset = self.draw_size // 2  
@@ -104,8 +113,10 @@ class Ghost:
             self.mode = "WAITING"
             self.start_time = time.time()
             self.direction = (0, -self.speed)
+            self.is_vulnerable = False
         else:
             self.mode = "RETURNING"
+            self.is_vulnerable = False
 
     def fly_home(self):
         target_x, target_y = self.spawn_pos
@@ -122,11 +133,12 @@ class Ghost:
             self.mode = "WAITING"
             self.start_time = time.time()
 
-    def handle_player_collision(self, is_vulnerable):
+    def handle_player_collision(self):
         if self.mode == "RETURNING": 
             return 0, False
         
-        if is_vulnerable: # Помер і летить додому
+        if self.is_vulnerable: # Помер і летить додому
+            self.is_vulnerable = False
             self.reset(instant=False)
             return 200, False
         

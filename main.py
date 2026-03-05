@@ -24,12 +24,11 @@ def process_collisions(player, ghosts, game_map, energizer):
     if is_energizer:
         energizer.activate()
         for ghost in ghosts:
-            if ghost.mode not in ["WAITING", "EXITING"]:
-                ghost.reverse_direction()
+            ghost.start_vulnerable()
 
     for ghost in ghosts:
         if player.rect.colliderect(ghost.rect):
-            points, killed = ghost.handle_player_collision(energizer.is_active())
+            points, killed = ghost.handle_player_collision()
             total_points += points
             if killed:
                 death_occurred = True
@@ -39,7 +38,6 @@ def process_collisions(player, ghosts, game_map, energizer):
 def run_game(selected_level, selected_color):
     score = 0
     lives = 3
-    start_ticks = time.time() # Ініціалізація для global_mode
     
     # Ініціалізація карти та гравця всередині функції
     game_map = Map(screen, selected_level, selected_color, WIDTH, HEIGHT)
@@ -57,28 +55,25 @@ def run_game(selected_level, selected_color):
     energizer = Energizer()
 
     while True:
-        # 1. Розрахунок часу та режиму
-        if energizer.is_active():
-            global_mode = "STUNNED"
-        else:
-            elapsed = (time.time() - start_ticks) % 30
-            global_mode = "CHASE" if elapsed < 20 else "SCATTER"
-
-        # 2. Обробка подій
+        # Обробка подій
         screen.fill(BLACK)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit(); sys.exit()
         
-        # 3. Оновлення об'єктів
+        # Оновлення об'єктів
         pygame.display.set_caption(f"Pac-Man | Score: {score} | Lives: {lives}")
         game_map.draw_map()
 
         player.update(game_map)
         energizer.update()
 
+        if not energizer.is_active():
+            for ghost in ghosts:
+                ghost.stop_vulnerable()
+                
         for ghost in ghosts:  
-            ghost.update(player, game_map, ghosts[0].rect.center, global_mode)
+            ghost.update(player, game_map, ghosts[0].rect.center)
         
         added_score, is_dead = process_collisions(player, ghosts, game_map, energizer)
         score += added_score
@@ -93,8 +88,8 @@ def run_game(selected_level, selected_color):
             for ghost in ghosts:
                 ghost.reset(instant=True)
             pygame.time.delay(1000)
-            
-        # 5. Малювання
+
+        # Малювання
         player.draw(screen)
         for ghost in ghosts: 
             ghost.draw(screen)
