@@ -28,10 +28,10 @@ tile = 34
 # Центр будиночка по горизонталі — це 13-й тайл.
 # Внутрішня частина по вертикалі — це приблизно 13.5 тайл.
 ghosts = [
-    Ghost("Blinky", "blinky.png", 13*tile, 14*tile, tile, (WIDTH, 0), 2),
-    Ghost("Pinky", "pinky.png", 12*tile, 14*tile, tile, (0, 0), 6),
-    Ghost("Inky", "inky.png", 14*tile, 14*tile, tile, (WIDTH, HEIGHT), 10),
-    Ghost("Clyde", "clyde.png", 13*tile, 14*tile, tile, (0, HEIGHT), 14)
+    Ghost("Blinky", "blinky.png", 13*tile, 13*tile, tile, (WIDTH, 0), 2),
+    Ghost("Pinky", "pinky.png", 12*tile, 13*tile, tile, (0, 0), 6),
+    Ghost("Inky", "inky.png", 14*tile, 13*tile, tile, (WIDTH, HEIGHT), 10),
+    Ghost("Clyde", "clyde.png", 13*tile, 13*tile, tile, (0, HEIGHT), 14)
 ]
 def reset_positions(player, ghosts):
     # Початкові координати Пакмена
