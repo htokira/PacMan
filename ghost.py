@@ -159,14 +159,14 @@ class Ghost:
 
     def handle_player_collision(self):
         if self.mode == "RETURNING": 
-            return 0, False
+            return False, False
         
         if self.is_vulnerable: # Помер і летить додому
             self.is_vulnerable = False
             self.reset(instant=False)
-            return 200, False
+            return True, False
         
-        return 0, True 
+        return False, True 
 
     def normalize_direction(self, speed):
         dir_x = speed if self.direction[0] > 0 else -speed if self.direction[0] < 0 else 0

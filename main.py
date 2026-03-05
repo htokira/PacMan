@@ -34,8 +34,11 @@ def process_collisions(player, ghosts, game_map, energizer):
 
     for ghost in ghosts:
         if player.rect.colliderect(ghost.rect):
-            points, killed = ghost.handle_player_collision()
-            total_points += points
+            ghost_eaten, killed = ghost.handle_player_collision()
+            
+            if ghost_eaten:
+                total_points += energizer.get_next_ghost_score()
+
             if killed:
                 death_occurred = True
                 
@@ -104,6 +107,7 @@ def run_game(selected_level, selected_color):
 
         if is_dead:
             lives -= 1
+            energizer.deactivate()
             if lives <= 0:
                 return  # Game Over
             
