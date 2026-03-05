@@ -8,6 +8,7 @@ from ghost import Ghost
 from energizer import Energizer
 from cli import *
 from game_over import GameOverScreen
+from win_screen import WinScreen
 
 # Ініціалізація Pygame
 pygame.init()
@@ -131,6 +132,11 @@ def run_game(selected_level, selected_color, is_cli=False):
         
         added_score, is_dead = process_collisions(player, ghosts, game_map, energizer)
         score += added_score
+
+        if game_map.is_clear(): 
+            win_scr = WinScreen(screen, is_cli=is_cli)
+            win_scr.display()
+            return
 
         if is_dead:
             lives -= 1
