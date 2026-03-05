@@ -128,15 +128,19 @@ def run_game(selected_level, selected_color):
 
 def main():
     args = parse_args()
-    selected_color = COLOR_MAPPING.get(args.color)
+    menu = Menu(screen)
+
+    selected_level = None
+    selected_color = None
 
     if args.level is not None:
+        selected_color = COLOR_MAPPING.get(args.color)
         selected_level = LEVEL_MAPPING.get(args.level)
         run_game(selected_level, selected_color)
-    else:
-        menu = Menu(screen)
-        # Отримуємо вибір з меню
-        action_data = menu.display_main_menu()
+    
+    while True:
+        if selected_level is None and selected_color is None:
+            action_data = menu.display_main_menu()
         
         # Перевірка структури відповіді меню
         if isinstance(action_data, tuple) and len(action_data) == 3:
@@ -145,6 +149,9 @@ def main():
                 run_game(selected_level, selected_color)
             elif action == "quit":
                 pygame.quit(); sys.exit()
+
+        selected_level = None
+        selected_color = None
 
 if __name__ == "__main__":
     main()
