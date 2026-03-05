@@ -25,8 +25,18 @@ class Pacman:
     def can_move_to(self, x, y, game_map):
         # Перевіряємо тільки одну точку — ПЕРЕД Пакменом по центру його руху
         # Якщо перед носом не стіна — він їде. Це виключає застрягання боками.
-        check_x = x + 13 + (self.direction[0] * 8 if self.direction[0] != 0 else 0)
-        check_y = y + 13 + (self.direction[1] * 8 if self.direction[1] != 0 else 0)
+        dx = 0 if self.direction[0] == 0 else 1 if self.direction[0] > 0 else -1
+        dy = 0 if self.direction[1] == 0 else 1 if self.direction[1] > 0 else -1
+        
+        check_x = x + 13 + dx * 8
+        check_y = y + 13 + dy * 8
+
+        if dx != 0:  # Тільки коли рухаємося ліво/право
+            if check_x < 0:
+                check_x += game_map.width
+            elif check_x >= game_map.width:
+                check_x -= game_map.width
+
         return game_map.can_move(check_x, check_y)
 
     def update(self, game_map):
@@ -63,6 +73,11 @@ class Pacman:
             # МАГНІТ: не даємо йому зміщуватися вбік від центральної лінії
             if self.direction[0] != 0: self.rect.centery = tile_center_y # Їде горизонтально — фіксуємо Y
             if self.direction[1] != 0: self.rect.centerx = tile_center_x # Їде вертикально — фіксуємо X
+
+            if self.rect.centerx < 0:
+                self.rect.centerx += game_map.width
+            elif self.rect.centerx >= game_map.width:
+                self.rect.centerx -= game_map.width
         else:
             self.direction = (0, 0)
             # При зупинці вирівнюємо чітко по центру плитки
