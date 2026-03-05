@@ -12,16 +12,30 @@ class Ghost:
         # ВИПРАВЛЕНО: Зменшуємо розмір привида до 80% від тайла
         self.draw_size = int(tile_size * 0.8)
         
-        full_path = os.path.join("assets", filename)
-        blue_path = os.path.join("assets", "blue_ghost.png")
-        eyes_path = os.path.join("assets", "eyes.png")
-        
-        # Масштабуємо зображеннія під новий розмір
-        self.normal_image = pygame.transform.scale(pygame.image.load(full_path).convert_alpha(), (self.draw_size, self.draw_size))
-        self.blue_image = pygame.transform.scale(pygame.image.load(blue_path).convert_alpha(), (self.draw_size, self.draw_size))
-        self.eyes_image = pygame.transform.scale(pygame.image.load(eyes_path).convert_alpha(), (self.draw_size, self.draw_size))
+        base_name = filename.split('.')[0]
+
+        self.normal_frames = [
+            self.load_and_scale(f"{base_name}.png"),
+            self.load_and_scale(f"{base_name}_2.png")
+        ]
+
+        self.blue_frames = [
+            self.load_and_scale("blue_ghost.png"),
+            self.load_and_scale("blue_ghost_2.png")
+        ]
+
+        self.white_frames = [
+            self.load_and_scale("white_ghost.png"),
+            self.load_and_scale("white_ghost_2.png")
+        ]
+        self.eyes_image = self.load_and_scale("eyes.png")
+
+        # Параметри анімації
+        self.frame_index = 0
+        self.anim_speed = 0.15
+        self.anim_timer = 0
     
-        self.image = self.normal_image
+        self.image = self.normal_frames[0]
         self.rect = self.image.get_rect(center=self.spawn_pos)
 
         self.speed = 2
@@ -35,7 +49,8 @@ class Ghost:
         self.is_vulnerable = False
         self.start_time = time.time()
     
-    def update(self, player, game_map, blinky_pos):
+    def update(self, player, game_map, blinky_pos, vulnerability_expiring=False):
+        self.update_animation()
         current_time = time.time()
 
         if self.mode == "RETURNING":
@@ -44,9 +59,18 @@ class Ghost:
             return
         
         if self.is_vulnerable:
-            self.image = self.blue_image
+            if vulnerability_expiring:
+                if int(current_time * 5) % 2 == 0:
+                    current_frames = self.white_frames
+                else:
+                    current_frames = self.blue_frames
+            else:
+                current_frames = self.blue_frames
+                
+            self.image = current_frames[self.frame_index]
+            
         else:
-            self.image = self.normal_image
+            self.image = self.normal_frames[self.frame_index]
         
         if self.mode == "WAITING":
             if current_time - self.start_time >= self.release_delay:
@@ -187,6 +211,16 @@ class Ghost:
     
     def calculate_distance(self, x1, y1, x2, y2):
         return ((x1 - x2)**2 + (y1 - y2)**2)**0.5
+    
+    def load_and_scale(self, name):
+        path = os.path.join("assets", name)
+        return pygame.transform.scale(pygame.image.load(path).convert_alpha(), (self.draw_size, self.draw_size))
+    
+    def update_animation(self):
+        self.anim_timer += self.anim_speed
+        if self.anim_timer >= 2:
+            self.anim_timer = 0
+        self.frame_index = int(self.anim_timer)
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
