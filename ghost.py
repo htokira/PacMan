@@ -9,7 +9,6 @@ class Ghost:
         self.tile_size = tile_size
         self.spawn_pos = (x + tile_size // 2, y + tile_size // 2)
 
-        # ВИПРАВЛЕНО: Зменшуємо розмір привида до 80% від тайла
         self.draw_size = int(tile_size * 0.8)
         
         base_name = filename.split('.')[0]
@@ -106,13 +105,20 @@ class Ghost:
         self.move_logic(player, game_map, blinky_pos, is_vulnerable=self.is_vulnerable)
 
     def start_vulnerable(self):
-       if self.mode != "RETURNING" and not self.is_vulnerable:
+        """
+        Активує стан вразливості для привида.
+        Привид розвертається, якщо він перебував у режимі Chase.
+        """
+        if self.mode != "RETURNING" and not self.is_vulnerable:
             self.is_vulnerable = True
             if self.mode == "CHASE":
                 self.reverse_direction()
 
 
     def stop_vulnerable(self):
+        """
+        Деактивує стан вразливості привида.
+        """
         self.is_vulnerable = False
             
     def move_logic(self, player, game_map, blinky_pos, is_vulnerable=False):
@@ -132,6 +138,13 @@ class Ghost:
         self.rect.y += direction_y
 
     def reset(self, instant=False):
+        """
+        Скидає стан та позицію привида.
+
+        Args:
+            instant (bool): True - привид миттєво переміщується до спавну.
+                            False - вмикається режим Returning.
+        """
         if instant:
             self.rect.center = self.spawn_pos
             self.mode = "WAITING"
@@ -143,6 +156,9 @@ class Ghost:
             self.is_vulnerable = False
 
     def fly_home(self):
+        """
+        Реалізує рух привида до точки спавну після його з'їдання.
+        """
         target_x, target_y = self.spawn_pos
         dist = self.calculate_distance(self.rect.centerx, self.rect.centery, target_x, target_y)
         
@@ -158,6 +174,12 @@ class Ghost:
             self.start_time = time.time()
 
     def handle_player_collision(self):
+        """
+        Обробляє логіку зіткнення привида з Пакменом.
+
+        Returns:
+            tuple: (ghost_eaten, player_killed) —  логічні значення, що вказують чи був з'їдений привид та чи загинув гравець.
+        """
         if self.mode == "RETURNING": 
             return False, False
         
@@ -174,6 +196,19 @@ class Ghost:
         return dir_x, dir_y
 
     def choose_direction(self, player, game_map, check_offset, current_speed, is_vulnerable):
+        """
+        Вибирає наступний напрямок руху на перехрестях.
+
+        Args:
+            player (Pacman): Об'єкт гравця для переслідування.
+            game_map (Map): Об'єкт карти для перевірки стін.
+            check_offset (int): Зміщення для перевірки колізій.
+            current_speed (int): Поточна швидкість руху.
+            is_vulnerable (bool): Чи вразливий для зміни алгоритму руху.
+
+        Returns:
+            tuple: Обраний вектор напрямку (dx, dy).
+        """
         possible_dirs = [(current_speed, 0), (-current_speed, 0), (0, current_speed), (0, -current_speed)]
        
         back_dir = (-self.direction[0], -self.direction[1])
@@ -207,16 +242,41 @@ class Ghost:
         return best_dir
     
     def reverse_direction(self):
+        """
+        Змушує привида розвернутися на 180 градусів.
+        """
         self.direction = (-self.direction[0], -self.direction[1])
     
     def calculate_distance(self, x1, y1, x2, y2):
+        """
+        Обчислює Евклідову відстань між двома точками.
+
+        Args:
+            x1, y1 (float): Координати першої точки.
+            x2, y2 (float): Координати другої точки.
+
+        Returns:
+            float: Відстань між точками.
+        """
         return ((x1 - x2)**2 + (y1 - y2)**2)**0.5
     
     def load_and_scale(self, name):
+        """
+        Завантажує зображення та масштабує його під розмір привида.
+
+        Args:
+            name (str): Назва файлу зображення.
+
+        Returns:
+            pygame.Surface: Готова до використання поверхня зображення.
+        """
         path = os.path.join("assets", name)
         return pygame.transform.scale(pygame.image.load(path).convert_alpha(), (self.draw_size, self.draw_size))
     
     def update_animation(self):
+        """
+        Оновлює таймер та індекс кадру для анімації руху привида.
+        """
         self.anim_timer += self.anim_speed
         if self.anim_timer >= 2:
             self.anim_timer = 0
