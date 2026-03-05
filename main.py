@@ -87,7 +87,7 @@ def draw_ui(screen, score, lives):
     
     pygame.draw.line(screen, WHITE, (0, HEIGHT - 65), (WIDTH, HEIGHT - 65), 2)
 
-def run_game(selected_level, selected_color, is_cli=False):
+def run_game(selected_level, selected_color, is_cli=False, infinite_mode=False):
     score = 0
     lives = 3
     
@@ -134,9 +134,12 @@ def run_game(selected_level, selected_color, is_cli=False):
         score += added_score
 
         if game_map.is_clear(): 
-            win_scr = WinScreen(screen, score, is_cli=is_cli)
-            win_scr.display()
-            return
+            if infinite_mode:
+                game_map.reset_map()
+            else:
+                win_scr = WinScreen(screen, score, is_cli=is_cli)
+                win_scr.display()
+                return
 
         if is_dead:
             lives -= 1
@@ -180,10 +183,10 @@ def main():
             action_data = menu.display_main_menu()
         
         # Перевірка структури відповіді меню
-        if isinstance(action_data, tuple) and len(action_data) == 3:
-            action, selected_level, selected_color = action_data
+        if isinstance(action_data, tuple) and len(action_data) == 4:
+            action, selected_level, selected_color, inf_mode = action_data
             if action == "start_game":
-                run_game(selected_level, selected_color, is_cli=False)
+                run_game(selected_level, selected_color, is_cli=False, infinite_mode=inf_mode)
             elif action == "quit":
                 pygame.quit(); sys.exit()
 
