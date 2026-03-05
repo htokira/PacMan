@@ -17,14 +17,14 @@ class Ghost:
         self.image = self.normal_image
         self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = 2
-        self.exit_speed = 3 # Швидкість виходу з будиночка
+        self.exit_speed = 3
         self.direction = (0, -self.speed)
         
         self.mode = "WAITING"
         self.release_delay = release_delay
         self.start_time = time.time()
-        self.mode_timer = 0
 
+    # СУВОРО: 4 аргументи + self = 5 позиційних аргументів
     def update(self, player, game_map, blinky_pos, global_mode):
         current_time = time.time()
 
@@ -33,10 +33,10 @@ class Ghost:
                 self.mode = "EXITING"
             return
 
-        # ШВИДКИЙ ВИХІД КРІЗЬ СТІНИ
+        # ВИХІД: Ігноруємо колізії стін, поки не вийдемо
         if self.mode == "EXITING":
             target_x = 13 * self.tile_size
-            target_y = 10 * self.tile_size # Точка в коридорі
+            target_y = 10 * self.tile_size # Вище білої лінії
 
             if abs(self.rect.x - target_x) > 2:
                 self.rect.x += self.exit_speed if self.rect.x < target_x else -self.exit_speed
@@ -44,14 +44,13 @@ class Ghost:
             if self.rect.y > target_y:
                 self.rect.y -= self.exit_speed
             else:
-                self.mode = "CHASE" # Тільки тепер вмикаємо логіку стін
-                self.mode_timer = current_time
+                self.mode = "CHASE" 
             return
 
-        # ГЛОБАЛЬНІ РЕЖИМИ
+        # РЕЖИМИ ПІСЛЯ ВИХОДУ
         if global_mode == "STUNNED":
-            self.image = self.blue_image #
-            # Дрижання
+            self.image = self.blue_image
+            # Ефект паніки (невелике дрижання)
             self.rect.x += random.randint(-1, 1)
             self.rect.y += random.randint(-1, 1)
         else:
@@ -59,7 +58,7 @@ class Ghost:
             self.move_logic(player, game_map, blinky_pos)
 
     def move_logic(self, player, game_map, blinky_pos):
-        # Сувора перевірка стін після виходу
+        # Перевірка стін
         if not game_map.can_move(self.rect.x + self.direction[0] + 17, self.rect.y + self.direction[1] + 17):
             possible_dirs = [(self.speed, 0), (-self.speed, 0), (0, self.speed), (0, -self.speed)]
             best_dir = self.direction
