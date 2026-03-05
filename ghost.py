@@ -39,7 +39,7 @@ class Ghost:
                 self.mode = "EXITING"
             return
 
-        # --- ЖОРСТКА ЛОГІКА ВИХОДУ ---
+        # ЛОГІКА ВИХОДУ
         if self.mode == "EXITING":
             # 1. Центр проходу (біла лінія)
             target_center_x = 10 * self.tile_size + (self.tile_size // 2)
@@ -126,6 +126,9 @@ class Ghost:
                 min_dist, best_dir = dist, d
         
         return best_dir
+    
+    def reverse_direction(self):
+        self.direction = (-self.direction[0], -self.direction[1])
     
     def calculate_distance(self, x1, y1, x2, y2):
         return ((x1 - x2)**2 + (y1 - y2)**2)**0.5

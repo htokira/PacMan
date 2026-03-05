@@ -36,8 +36,11 @@ def run_game(selected_level, selected_color):
 
     while True:
         # 1. Розрахунок часу та режиму
-        elapsed = (time.time() - start_ticks) % 30
-        global_mode = "STUNNED" if elapsed > 20 else "CHASE"
+        if energizer.is_active():
+            global_mode = "STUNNED"
+        else:
+            elapsed = (time.time() - start_ticks) % 30
+            global_mode = "CHASE" if elapsed < 20 else "SCATTER"
 
         # 2. Обробка подій
         screen.fill(BLACK)
@@ -50,6 +53,8 @@ def run_game(selected_level, selected_color):
         game_map.draw_map()
         player.update(game_map)
 
+        energizer.update()
+
         # Координати Блінкі для логіки інших привидів
         blinky_pos = (ghosts[0].rect.centerx, ghosts[0].rect.centery)
 
@@ -58,13 +63,19 @@ def run_game(selected_level, selected_color):
             ghost.update(player, game_map, blinky_pos, global_mode)
             
             if player.rect.colliderect(ghost.rect):
-                lives -= 1
-                pygame.time.delay(1000)
-                if lives > 0:
-                    player.rect.topleft = (PLAYER_X, PLAYER_Y)
-                    player.direction = (0, 0)
-                else:
-                    return # Game Over
+                if global_mode == "STUNNED": # З'їв 
+                    ghost.rect.center = (10 * 34, 9 * 34)
+                    ghost.mode = "WAITING"
+                    ghost.start_time = time.time()
+                    score += 200
+                else: # Смерть
+                    lives -= 1
+                    pygame.time.delay(1000)
+                    if lives > 0:
+                        player.rect.topleft = (PLAYER_X, PLAYER_Y)
+                        player.direction = (0, 0)
+                    else:
+                        return # Game Over
 
         # 4. Збір крапок та енерджайзерів
         points, is_energizer = game_map.collision_with_objects(player.rect.centerx, player.rect.centery)
@@ -72,8 +83,9 @@ def run_game(selected_level, selected_color):
 
         if is_energizer:
             energizer.activate()
-        
-        energizer.update()
+            for ghost in ghosts:
+                if ghost.mode != "WAITING" and ghost.mode != "EXITING":
+                    ghost.reverse_direction()
 
         # 5. Малювання
         player.draw(screen)

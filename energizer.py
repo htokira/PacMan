@@ -10,7 +10,6 @@ class Energizer:
         
     def activate(self):
         self.active = True
-        print("Активовано")
         self.start_time = time.time()
         
     def update(self):
@@ -21,7 +20,6 @@ class Energizer:
                 
     def deactivate(self):
         self.active = False
-        print("Деактивано") #temp
         
     def is_active(self):
         return self.active
