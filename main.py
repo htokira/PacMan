@@ -5,6 +5,9 @@ from menu import Menu
 from map import Map
 from levels import LEVEL1
 from pacman import Pacman
+from ghost import Ghost
+import time # Обов'язково додайте цей імпорт!
+
 
 # 1. Ініціалізація Pygame та екрану
 pygame.init()
@@ -20,44 +23,89 @@ game_map = Map(screen, activeLevel, WIDTH, HEIGHT)
 # Передаємо game_map, щоб Пакмен міг обрати початковий напрямок погляду
 # Використовуємо координати, які потрапляють у центр коридору
 player = Pacman(210, 159) 
+tile = 34
+tile = 34
+# Центр будиночка по горизонталі — це 13-й тайл.
+# Внутрішня частина по вертикалі — це приблизно 13.5 тайл.
+ghosts = [
+    Ghost("Blinky", "blinky.png", 13*tile, 14*tile, tile, (WIDTH, 0), 2),
+    Ghost("Pinky", "pinky.png", 12*tile, 14*tile, tile, (0, 0), 6),
+    Ghost("Inky", "inky.png", 14*tile, 14*tile, tile, (WIDTH, HEIGHT), 10),
+    Ghost("Clyde", "clyde.png", 13*tile, 14*tile, tile, (0, HEIGHT), 14)
+]
+def reset_positions(player, ghosts):
+    # Початкові координати Пакмена
+    player.rect.topleft = (210, 159)
+    player.direction = (0, 0)
+    player.next_direction = (0, 0)
+    
+    # Початкові координати привидів (ті самі, що при створенні)
+    start_coords = [(400, 300), (440, 300), (400, 340), (440, 340)]
+    for i, ghost in enumerate(ghosts):
+        ghost.rect.topleft = start_coords[i]
+        ghost.direction = (0, -ghost.speed)
+def reset_positions(player, ghosts):
+    # Пакмен завжди на старт
+    player.rect.topleft = (210, 159)
+    player.direction = (0, 0)
+    player.next_direction = (0, 0)
+    
+    # ПРИВИДІВ НЕ ТОРКАЄМОСЯ - вони залишаються на місці
+    # (Видалено цикл скидання координат привидів)
 
 def run_game():
     score = 0
+    lives = 3
+    start_ticks = time.time() # Ініціалізація часу
+    
     while True:
-        # Очищення екрану
-        screen.fill(BLACK)
-        
-        # Відображення рахунку в заголовку вікна
-        pygame.display.set_caption(f"Pac-Man | Score: {score}")
+        # Розрахунок режиму (20с погоня / 10с заціпеніння)
+        elapsed = (time.time() - start_ticks) % 30
+        global_mode = "STUNNED" if elapsed > 20 else "CHASE"
 
-        # --- ЛОГІКА ТА ОНОВЛЕННЯ ---
-        
-        # Обробка подій (вихід з гри)
+        screen.fill(BLACK)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
         
-        # Малюємо карту (стіни та точки)
         game_map.draw_map()
-        
-        # Оновлюємо Пакмена (рух, анімація та "рейкова" логіка)
         player.update(game_map)
-        
-        # Перевірка на з'їдання точок/енерджайзерів
-        # Використовуємо центр спрайта для більш точного поїдання
+
+        # Координати Блінкі для логіки інших привидів
+        blinky_pos = (ghosts[0].rect.centerx, ghosts[0].rect.centery)
+
+        # Оновлення привидів
+        for ghost in ghosts:
+            ghost.update(player, game_map, blinky_pos, global_mode)
+            
+            # Логіка зіткнення з привидом
+            if player.rect.colliderect(ghost.rect):
+                lives -= 1
+                pygame.display.flip()
+                pygame.time.delay(1000) # Пауза (всі стоять на місці)
+                
+                if lives > 0:
+                    # Телепортуємо тільки Пакмена
+                    player.rect.topleft = (210, 159)
+                    player.direction = (0, 0)
+                    player.next_direction = (0, 0)
+                    # Привиди НЕ скидаються, вони лишаються там, де були
+                else:
+                    return # Game Over
+
+        # --- ЗБІР КРАПОЧОК (Важливо: правильний відступ!) ---
+        # Цей код має працювати КОЖЕН кадр
         points = game_map.collision_with_objects(player.rect.centerx, player.rect.centery)
         score += points
 
-        # --- МАЛЮВАННЯ ---
+        # Малювання
         player.draw(screen)
+        for ghost in ghosts:
+            ghost.draw(screen)
 
-        # Оновлення екрану
         pygame.display.flip()
-        
-        # Обмеження FPS (60 кадрів на секунду)
         clock.tick(60)
-
 def main():
     # Створюємо меню
     menu = Menu(screen)
