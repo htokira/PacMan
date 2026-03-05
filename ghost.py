@@ -14,7 +14,7 @@ class Ghost:
         full_path = os.path.join("assets", filename)
         blue_path = os.path.join("assets", "blue_ghost.png")
         
-        # Масштабуємо зображення під новий розмір
+        # Масштабуємо зображеннія під новий розмір
         self.normal_image = pygame.transform.scale(pygame.image.load(full_path).convert_alpha(), (self.draw_size, self.draw_size))
         self.blue_image = pygame.transform.scale(pygame.image.load(blue_path).convert_alpha(), (self.draw_size, self.draw_size))
         
@@ -25,6 +25,7 @@ class Ghost:
         self.rect = self.image.get_rect(topleft=(x + offset, y + offset))
         
         self.speed = 2
+        self.stunned_speed = 1
         self.exit_speed = 3
         self.direction = (0, -self.speed)
         
@@ -60,38 +61,74 @@ class Ghost:
             else:
                 # МИТТЄВА ЗМІНА РЕЖИМУ: тепер привид бачить стіни
                 self.mode = "CHASE"
-                self.rect.y = gate_y # Фіксуємо на рівні проходу
-                # Не робимо return, щоб одразу пішла перевірка стін нижче
+                self.rect.centerx = target_center_x
+                self.rect.centery = gate_y - (self.tile_size // 2) # Фіксуємо на рівні проходу
+                self.direction = (0, -self.speed)
 
         # --- РЕЖИМ ПІСЛЯ ВИХОДУ: СТІНИ НЕПРОХІДНІ ---
         if global_mode == "STUNNED":
             self.image = self.blue_image
-    # Незначне випадкове зміщення без зміни основних координат
-            self.rect.x += random.randint(-1, 1)
-            self.rect.y += random.randint(-1, 1)
-    # move_logic НЕ викликаємо!
+            self.move_logic(player, game_map, blinky_pos, is_vulnerable=True)
         else:
             self.image = self.normal_image
-            self.move_logic(player, game_map, blinky_pos)
-    def move_logic(self, player, game_map, blinky_pos):
-        # ВИПРАВЛЕНО: Використовуємо динамічний центр для перевірки колізій
-        check_offset = self.draw_size // 2
-        
-        if not game_map.can_move(self.rect.x + self.direction[0] + check_offset, self.rect.y + self.direction[1] + check_offset):
-            possible_dirs = [(self.speed, 0), (-self.speed, 0), (0, self.speed), (0, -self.speed)]
-            best_dir = self.direction
-            min_dist = float('inf')
-            for d in possible_dirs:
-                if d == (-self.direction[0], -self.direction[1]): continue
-                # Також використовуємо check_offset тут
-                if game_map.can_move(self.rect.x + d[0] + check_offset, self.rect.y + d[1] + check_offset):
-                    dist = ((self.rect.x + d[0] - player.rect.centerx)**2 + (self.rect.y + d[1] - player.rect.centery)**2)**0.5
-                    if dist < min_dist:
-                        min_dist, best_dir = dist, d
-            self.direction = best_dir
+            self.move_logic(player, game_map, blinky_pos, is_vulnerable=False)
 
-        self.rect.x += self.direction[0]
-        self.rect.y += self.direction[1]
+    def move_logic(self, player, game_map, blinky_pos, is_vulnerable=False):
+        current_speed = self.stunned_speed if is_vulnerable else self.speed
+        check_offset = self.draw_size // 2  
+
+        direction_x, direction_y = self.normalize_direction(current_speed)
+        
+        next_x = self.rect.x + direction_x + check_offset
+        next_y = self.rect.y + direction_y + check_offset
+
+        if not game_map.can_move(next_x,next_y):
+            self.direction = self.choose_direction(player, game_map, check_offset, current_speed, is_vulnerable)
+            direction_x, direction_y = self.direction
+
+        self.rect.x += direction_x
+        self.rect.y += direction_y
+
+    def normalize_direction(self, speed):
+        dir_x = speed if self.direction[0] > 0 else -speed if self.direction[0] < 0 else 0
+        dir_y = speed if self.direction[1] > 0 else -speed if self.direction[1] < 0 else 0
+        return dir_x, dir_y
+
+    def choose_direction(self, player, game_map, check_offset, current_speed, is_vulnerable):
+        possible_dirs = [(current_speed, 0), (-current_speed, 0), (0, current_speed), (0, -current_speed)]
+       
+        back_dir = (-self.direction[0], -self.direction[1])
+
+        valid_dirs = []
+        for d in possible_dirs:
+            if d[0] == back_dir[0] and d[1] == back_dir[1] and len(possible_dirs) > 1:
+                continue
+            
+            if game_map.can_move(self.rect.x + d[0] + check_offset, self.rect.y + d[1] + check_offset):
+                valid_dirs.append(d)
+
+        if not valid_dirs:
+            return back_dir
+        
+        if is_vulnerable:
+            return random.choice(valid_dirs)
+        else: 
+            return self.find_closest_direction(valid_dirs, player)
+        
+    def find_closest_direction(self, valid_dirs, player):
+        best_dir = valid_dirs[0]
+        min_dist = float('inf')
+
+        for d in valid_dirs:
+            dist = self.calculate_distance(self.rect.x + d[0], self.rect.y + d[1], player.rect.centerx, player.rect.centery)
+            
+            if dist < min_dist:
+                min_dist, best_dir = dist, d
+        
+        return best_dir
+    
+    def calculate_distance(self, x1, y1, x2, y2):
+        return ((x1 - x2)**2 + (y1 - y2)**2)**0.5
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
