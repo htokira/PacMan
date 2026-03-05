@@ -86,11 +86,14 @@ class Pacman:
     def update_animation(self):
         if self.direction != (0, 0): # Програється анімація
             self.anim_timer += self.anim_speed
-            if self.anim_timer >= 3:
+
+            if self.anim_timer >= 4:
                 self.anim_timer = 0
-            self.frame_index = int(self.anim_timer)
+                
+            animation_sequence = [0, 1, 2, 1] # Анімація 1 - 2 - 3 - 2
+            self.frame_index = animation_sequence[int(self.anim_timer)]
         else: # Відсутня анімація
-            self.frame_index = 0 
+            self.frame_index = 2
 
         self.image = self.sprites[self.look_direction][self.frame_index]
     
