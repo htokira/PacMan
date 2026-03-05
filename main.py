@@ -14,69 +14,82 @@ pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
-# Глобальні об'єкти (тільки ті, що не залежать від вибору рівня)
-# У файлі main.py змініть список ghosts:
-tile = 34
-ghosts = [
-    # Координата 13*tile по Y ставить їх всередину синього квадрата
-    Ghost("Blinky", "blinky.png", 11*tile, 9*tile, tile, (WIDTH, 0), 2),
-    Ghost("Pinky", "pinky.png", 9*tile, 9*tile, tile, (0, 0), 6),
-    Ghost("Inky", "inky.png", 12*tile, 9*tile, tile, (WIDTH, HEIGHT), 10),
-    Ghost("Clyde", "clyde.png", 10*tile, 9*tile, tile, (0, HEIGHT), 14)
-]
+def process_collisions(player, ghosts, game_map, energizer):
+    total_points = 0
+    death_occurred = False
+
+    points, is_energizer = game_map.collision_with_objects(player.rect.centerx, player.rect.centery)
+    total_points += points
+    
+    if is_energizer:
+        energizer.activate()
+        for ghost in ghosts:
+            ghost.start_vulnerable()
+
+    for ghost in ghosts:
+        if player.rect.colliderect(ghost.rect):
+            points, killed = ghost.handle_player_collision()
+            total_points += points
+            if killed:
+                death_occurred = True
+                
+    return total_points, death_occurred
 
 def run_game(selected_level, selected_color):
     score = 0
     lives = 3
-    start_ticks = time.time() # Ініціалізація для global_mode
     
     # Ініціалізація карти та гравця всередині функції
     game_map = Map(screen, selected_level, selected_color, WIDTH, HEIGHT)
-    player = Pacman(210, 159) 
+
+    tile = 34
+
+    player = Pacman(PLAYER_X, PLAYER_Y) 
+    ghosts = [
+        Ghost("Blinky", "blinky.png", 11*tile, 9*tile, tile, (WIDTH, 0), 2),
+        Ghost("Pinky", "pinky.png", 9*tile, 9*tile, tile, (0, 0), 6),
+        Ghost("Inky", "inky.png", 12*tile, 9*tile, tile, (WIDTH, HEIGHT), 10),
+        Ghost("Clyde", "clyde.png", 10*tile, 9*tile, tile, (0, HEIGHT), 14)
+    ]
+
     energizer = Energizer()
 
     while True:
-        # 1. Розрахунок часу та режиму
-        elapsed = (time.time() - start_ticks) % 30
-        global_mode = "STUNNED" if elapsed > 20 else "CHASE"
-
-        # 2. Обробка подій
+        # Обробка подій
         screen.fill(BLACK)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit(); sys.exit()
         
-        # 3. Оновлення об'єктів
+        # Оновлення об'єктів
         pygame.display.set_caption(f"Pac-Man | Score: {score} | Lives: {lives}")
         game_map.draw_map()
+
         player.update(game_map)
-
-        # Координати Блінкі для логіки інших привидів
-        blinky_pos = (ghosts[0].rect.centerx, ghosts[0].rect.centery)
-
-        for ghost in ghosts:
-            # Передаємо рівно 4 аргументи + self
-            ghost.update(player, game_map, blinky_pos, global_mode)
-            
-            if player.rect.colliderect(ghost.rect):
-                lives -= 1
-                pygame.time.delay(1000)
-                if lives > 0:
-                    player.rect.topleft = (210, 159)
-                    player.direction = (0, 0)
-                else:
-                    return # Game Over
-
-        # 4. Збір крапок та енерджайзерів
-        points, is_energizer = game_map.collision_with_objects(player.rect.centerx, player.rect.centery)
-        score += points
-
-        if is_energizer:
-            energizer.activate()
-        
         energizer.update()
 
-        # 5. Малювання
+        if not energizer.is_active():
+            for ghost in ghosts:
+                ghost.stop_vulnerable()
+                
+        for ghost in ghosts:  
+            ghost.update(player, game_map, ghosts[0].rect.center)
+        
+        added_score, is_dead = process_collisions(player, ghosts, game_map, energizer)
+        score += added_score
+
+        if is_dead:
+            lives -= 1
+            if lives <= 0:
+                return  # Game Over
+            
+            player.rect.topleft = (PLAYER_X, PLAYER_Y)
+            player.direction = (0, 0)
+            for ghost in ghosts:
+                ghost.reset(instant=True)
+            pygame.time.delay(1000)
+
+        # Малювання
         player.draw(screen)
         for ghost in ghosts: 
             ghost.draw(screen)
