@@ -83,3 +83,11 @@ class Map:
                 energizer_eaten = True
 
         return score, energizer_eaten
+    
+    def is_clear(self):
+        """Перевіряє, чи залишилася на карті їжа або енерджайзери."""
+        
+        for row in self.level:
+            if 1 in row or 2 in row:
+                return False
+        return True
