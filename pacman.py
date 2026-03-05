@@ -2,15 +2,20 @@ import pygame
 
 class Pacman:
     def __init__(self, x, y):
-        try:
-            self.original_image = pygame.image.load("assets/pacman.png")
-        except:
-            self.original_image = pygame.Surface((27, 27), pygame.SRCALPHA)
-            pygame.draw.circle(self.original_image, (255, 255, 0), (13, 13), 13)
+        self.size = (27, 27)
+        self.sprites = {
+            "left":  self.load_frames("pacman_left"),
+            "right": self.load_frames("pacman_right"),
+            "up":    self.load_frames("pacman_up"),
+            "down":  self.load_frames("pacman_down")
+        }
+
+        self.look_direction = "right" 
+        self.frame_index = 0
+        self.anim_speed = 0.2
+        self.anim_timer = 0
             
-        # Збільшуємо до 34х34, щоб він щільно сидів у коридорі
-        self.original_image = pygame.transform.scale(self.original_image, (27, 27))
-        self.image = self.original_image
+        self.image = self.sprites[self.look_direction][0]
         self.rect = self.image.get_rect(topleft=(x, y))
         
         self.speed = 2 
@@ -45,6 +50,7 @@ class Pacman:
                 if abs(self.rect.centerx - tile_center_x) < 6 and abs(self.rect.centery - tile_center_y) < 6:
                     self.direction = self.next_direction
                     self.rect.centerx, self.rect.centery = tile_center_x, tile_center_y
+                    self.update_look_direction()
 
         # 2. Рух + Жорстка фіксація на рейках
         new_x = self.rect.x + self.direction[0]
@@ -62,18 +68,37 @@ class Pacman:
             # При зупинці вирівнюємо чітко по центру плитки
             self.rect.centerx, self.rect.centery = tile_center_x, tile_center_y
 
-        self.rotate_sprite()
+        self.update_animation()
+    
+    def load_frames(self, prefix):
+        frames = []
+        for i in range(1, 4):
+            path = f"assets/pacman/{prefix}_{i}.png"
+            try:
+                img = pygame.image.load(path).convert_alpha()
+                frames.append(pygame.transform.scale(img, self.size))
+            except:
+                surf = pygame.Surface(self.size, pygame.SRCALPHA)
+                pygame.draw.circle(surf, (255, 255, 0), (13, 13), 13 - i*2)
+                frames.append(surf)
+        return frames
+    
+    def update_animation(self):
+        if self.direction != (0, 0): # Програється анімація
+            self.anim_timer += self.anim_speed
+            if self.anim_timer >= 3:
+                self.anim_timer = 0
+            self.frame_index = int(self.anim_timer)
+        else: # Відсутня анімація
+            self.frame_index = 0 
 
-    def rotate_sprite(self):
-        # (Код повороту залишається таким самим)
-        if self.direction == (-self.speed, 0):
-            self.image = pygame.transform.flip(self.original_image, True, False)
-        elif self.direction == (self.speed, 0):
-            self.image = self.original_image
-        elif self.direction == (0, -self.speed):
-            self.image = pygame.transform.rotate(self.original_image, 90)
-        elif self.direction == (0, self.speed):
-            self.image = pygame.transform.rotate(self.original_image, 270)
+        self.image = self.sprites[self.look_direction][self.frame_index]
+    
+    def update_look_direction(self):
+        if self.direction == (-self.speed, 0): self.look_direction = "left"
+        elif self.direction == (self.speed, 0): self.look_direction = "right"
+        elif self.direction == (0, -self.speed): self.look_direction = "up"
+        elif self.direction == (0, self.speed): self.look_direction = "down"
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
