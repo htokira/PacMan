@@ -1,6 +1,5 @@
 import pygame
 import sys
-import time
 from settings import *
 from menu import Menu
 from map import Map
@@ -8,7 +7,7 @@ from pacman import Pacman
 from ghost import Ghost
 from energizer import Energizer
 from cli import *
-import os
+from game_over import GameOverScreen
 
 # Ініціалізація Pygame
 pygame.init()
@@ -59,7 +58,7 @@ def draw_ui(screen, score, lives):
     
     pygame.draw.line(screen, WHITE, (0, HEIGHT - 65), (WIDTH, HEIGHT - 65), 2)
 
-def run_game(selected_level, selected_color):
+def run_game(selected_level, selected_color, is_cli=False):
     score = 0
     lives = 3
     
@@ -109,7 +108,9 @@ def run_game(selected_level, selected_color):
             lives -= 1
             energizer.deactivate()
             if lives <= 0:
-                return  # Game Over
+                game_over = GameOverScreen(screen, is_cli=is_cli)
+                game_over.display()
+                return
             
             player.rect.topleft = (PLAYER_X, PLAYER_Y)
             player.direction = (0, 0)
@@ -127,23 +128,33 @@ def run_game(selected_level, selected_color):
 
 def main():
     args = parse_args()
-    selected_color = COLOR_MAPPING.get(args.color)
+    menu = Menu(screen)
 
-    if args.level is not None:
+    selected_level = None
+    selected_color = None
+    is_cli = args.level is not None
+
+    if is_cli:
+        selected_color = COLOR_MAPPING.get(args.color)
         selected_level = LEVEL_MAPPING.get(args.level)
-        run_game(selected_level, selected_color)
-    else:
-        menu = Menu(screen)
-        # Отримуємо вибір з меню
-        action_data = menu.display_main_menu()
+        run_game(selected_level, selected_color, is_cli=True)
+        pygame.quit()
+        sys.exit()
+    
+    while True:
+        if selected_level is None and selected_color is None:
+            action_data = menu.display_main_menu()
         
         # Перевірка структури відповіді меню
         if isinstance(action_data, tuple) and len(action_data) == 3:
             action, selected_level, selected_color = action_data
             if action == "start_game":
-                run_game(selected_level, selected_color)
+                run_game(selected_level, selected_color, is_cli=False)
             elif action == "quit":
                 pygame.quit(); sys.exit()
+
+        selected_level = None
+        selected_color = None
 
 if __name__ == "__main__":
     main()
