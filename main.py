@@ -8,7 +8,7 @@ from ghost import Ghost
 from energizer import Energizer
 from cli import *
 from screens.game_over import GameOverScreen
-from win_screen import WinScreen
+from screens.win_screen import WinScreen
 
 # Ініціалізація Pygame
 pygame.init()
