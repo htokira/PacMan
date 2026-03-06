@@ -4,7 +4,18 @@ import sys
 from settings import *
 
 class GameOverScreen:
+    """
+    Клас для відображення екрана програшу (Game Over).
+    """
     def __init__(self, screen, score, is_cli = False):
+        """
+        Ініціалізує екран програшу.
+
+        Args:
+            screen (pygame.Surface): Поверхня для відображення графіки.
+            score (int): Кількість очок, які гравець встиг набрати до моменту поразки.
+            is_cli (bool): Прапорець, що визначає режим запуску гри (через консоль чи через argparse).
+        """
         self.screen = screen
         self.score = score
         self.is_cli = is_cli
@@ -12,6 +23,9 @@ class GameOverScreen:
         self.init_fonts()
 
     def init_fonts(self):
+        """
+        Завантажує шрифти для відображення тексту.
+        """
         font_path = os.path.join(self.current_dir, 'fonts', 'Emulogic-font.ttf')
         
         if not os.path.exists(font_path):
@@ -25,6 +39,15 @@ class GameOverScreen:
             self.button_font = pygame.font.Font(font_path, 40)
 
     def display(self):
+        """
+        Запускає ігровий цикл екрана програшу.
+
+        Метод малює написи "GAME OVER", фінальний рахунок 
+        та кнопку навігації. Обробляє події миші та закриття вікна.
+        
+        В режимі CLI кнопка завершує роботу програми, в звичайному режимі — 
+        завершує поточний цикл і дозволяє повернутися до головного меню.
+        """
         game_over_text = self.font.render("GAME OVER", True, RED)
         game_over_rect = game_over_text.get_rect(center=(WIDTH // 2, 200))
 
