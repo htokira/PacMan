@@ -4,7 +4,19 @@ import sys
 from settings import *
 
 class WinScreen:
+    """
+    Клас для відображення екрана перемоги після завершення гри.
+    """
     def __init__(self, screen, score, is_cli=False):
+        """
+        Ініціалізує екран перемоги.
+
+        Args:
+            screen (pygame.Surface): Поверхня для малювання елементів інтерфейсу.
+            score (int): Фінальний рахунок гравця.
+            is_cli (bool): Прапорець, що вказує, чи запущена гра через CLI. 
+                          Впливає на текст кнопки та логіку виходу.
+        """
         self.screen = screen
         self.score = score
         self.is_cli = is_cli
@@ -12,6 +24,9 @@ class WinScreen:
         self.init_fonts()
 
     def init_fonts(self):
+        """
+        Завантажує шрифти для тексту. 
+        """
         font_path = os.path.join(self.current_dir, 'fonts', 'Emulogic-font.ttf')
         if not os.path.exists(font_path):
             self.font = pygame.font.SysFont('Arial', 75)
@@ -23,6 +38,14 @@ class WinScreen:
             self.button_font = pygame.font.Font(font_path, 40)
 
     def display(self):
+        """
+        Запускає головний цикл відображення екрана перемоги.
+
+        1. Рендерить текст перемоги та фінальний рахунок.
+        2. Обробляє положення та назву кнопки (EXIT або MAIN MENU).
+        3. Оновлює екран та відстежує кліки миші.
+        4. Завершує роботу програми або повертає керування основному циклу гри.
+        """
         win_text = self.font.render("YOU WIN!", True, GREEN) 
         win_rect = win_text.get_rect(center=(WIDTH // 2, 200))
 
