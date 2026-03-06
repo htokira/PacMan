@@ -88,6 +88,18 @@ def draw_ui(screen, score, lives):
     pygame.draw.line(screen, WHITE, (0, HEIGHT - 65), (WIDTH, HEIGHT - 65), 2)
 
 def run_game(selected_level, selected_color, is_cli=False, infinite_mode=False):
+    """
+    Запускає основний ігровий цикл для конкретного рівня.
+
+    Створює екземпляри гравця, привидів та карти, оновлює їхній стан кожного кадру
+    та обробляє умови перемоги або поразки.
+
+    Args:
+        selected_level (list): Матриця даних вибраного рівня.
+        selected_color (tuple): RGB колір стін лабіринту.
+        is_cli (bool): Чи була гра запущена через аргументи командного рядка.
+        infinite_mode (bool): Якщо True, рівень перезапускається після збору всіх крапок.
+    """
     score = 0
     lives = 3
     
@@ -164,6 +176,12 @@ def run_game(selected_level, selected_color, is_cli=False, infinite_mode=False):
         clock.tick(60)
 
 def main():
+    """
+    Точка входу в програму.
+    
+    Вирішує, чи запускати гру відразу (режим CLI), чи відображати головне меню.
+    Керує переходом між меню та ігровим процесом.
+    """
     args = parse_args()
     menu = Menu(screen)
 
