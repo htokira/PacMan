@@ -37,10 +37,12 @@ class Menu:
             # Системний шрифт
             self.font = pygame.font.SysFont('Arial', 75)
             self.button_font = pygame.font.SysFont('Arial', 40)
+            self.medium_button_font = pygame.font.SysFont('Arial', 35)
             self.small_button_font = pygame.font.SysFont('Arial', 25)
         else:
             self.font = pygame.font.Font(font_path, 75)
             self.button_font = pygame.font.Font(font_path, 40)
+            self.medium_button_font = pygame.font.Font(font_path, 35)
             self.small_button_font = pygame.font.Font(font_path, 25)
         
     def init_main_menu(self):
@@ -53,23 +55,22 @@ class Menu:
 
         # Start game кнопка
         self.button_rect = pygame.Rect(0, 0, 200, 60)
-        self.button_rect.center = (WIDTH // 2, 350)
+        self.button_rect.center = (WIDTH // 2, 300)
         self.btn_text = self.button_font.render("PLAY", True, BLACK)
         self.btn_text_rect = self.btn_text.get_rect(center=self.button_rect.center)
 
-        self.inf_text = self.small_button_font.render("INFINITE MODE:", True, WHITE)
-        self.inf_text_rect = self.inf_text.get_rect(topleft=((WIDTH - self.inf_text.get_width()) // 2, 400))
-        self.checkbox_rect = pygame.Rect(self.inf_text_rect.right - 5, 400, 30, 30)
+        self.mode_btn_rect = pygame.Rect(0, 0, 300, 60)
+        self.mode_btn_rect.center = (WIDTH // 2, 380)
 
         # Difficulty кнопка
         self.diff_btn_rect = pygame.Rect(0, 0, 250, 60)
-        self.diff_btn_rect.center = (WIDTH // 2, 480)
+        self.diff_btn_rect.center = (WIDTH // 2, 460)
         self.diff_text = self.small_button_font.render("DIFFICULTY", True, BLACK)
         self.diff_text_rect = self.diff_text.get_rect(center=self.diff_btn_rect.center)
 
         # Quit кнопка
         self.quit_btn_rect = pygame.Rect(0, 0, 200, 60)
-        self.quit_btn_rect.center = (WIDTH // 2, 560)
+        self.quit_btn_rect.center = (WIDTH // 2, 540)
         self.quit_text = self.button_font.render("QUIT", True, BLACK)
         self.quit_text_rect = self.quit_text.get_rect(center=self.quit_btn_rect.center)
 
@@ -105,10 +106,11 @@ class Menu:
         pygame.draw.rect(self.screen, YELLOW, self.button_rect)
         self.screen.blit(self.btn_text, self.btn_text_rect)
 
-        self.screen.blit(self.inf_text, self.inf_text_rect)
-        pygame.draw.rect(self.screen, WHITE, self.checkbox_rect, 2)
-        if self.infinite_mode:
-            pygame.draw.rect(self.screen, YELLOW, self.checkbox_rect.inflate(-8, -8))
+        pygame.draw.rect(self.screen, YELLOW, self.mode_btn_rect)
+        mode_label = "INFINITE" if self.infinite_mode else "CLASSIC"
+        mode_text = self.medium_button_font.render(mode_label, True, BLACK)
+        mode_text_rect = mode_text.get_rect(center=self.mode_btn_rect.center)
+        self.screen.blit(mode_text, mode_text_rect)
 
         # Difficulty кнопка
         pygame.draw.rect(self.screen, YELLOW, self.diff_btn_rect)
@@ -188,8 +190,8 @@ class Menu:
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if self.button_rect.collidepoint(mouse_pos):
                         return "start_game", self.selected_level, self.selected_color, self.infinite_mode
-                    
-                    if self.checkbox_rect.collidepoint(mouse_pos):
+
+                    if self.mode_btn_rect.collidepoint(mouse_pos):
                         self.infinite_mode = not self.infinite_mode
                         
                     if self.diff_btn_rect.collidepoint(mouse_pos):
