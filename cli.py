@@ -2,6 +2,17 @@ import argparse
 from levels import *
 
 def parse_args():
+    """
+    Обробляє аргументи командного рядка для запуску гри з кастомними налаштуваннями
+    Використовує модуль argparse для створення інтерфейсу командного рядка. 
+    Дозволяє користувачу вказати початковий рівень та колір стін.
+
+    Returns:
+        argparse.Namespace: Об'єкт, що містить розпарсені значення аргументів 
+    
+    Приклад використання в терміналі:
+        python main.py --level 2 --color red
+    """
     parser = argparse.ArgumentParser(description="Pac-Man Game Settings")
     
     # Аргумент для рівня (приймає числа 1, 2 або 3)
@@ -24,12 +35,14 @@ def parse_args():
 
     return parser.parse_args()
 
+# Словник для відображення номера рівня
 LEVEL_MAPPING = {
     1: LEVEL1,
     2: LEVEL2,
     3: LEVEL3
 }
 
+# Словник для конвертації назв кольорів
 COLOR_MAPPING = {
     'blue': (0, 0, 255),
     'red': (255, 0, 0),
