@@ -106,9 +106,17 @@ class Menu:
         pygame.draw.rect(self.screen, YELLOW, self.button_rect)
         self.screen.blit(self.btn_text, self.btn_text_rect)
 
-        pygame.draw.rect(self.screen, YELLOW, self.mode_btn_rect)
-        mode_label = "INFINITE" if self.infinite_mode else "CLASSIC"
-        mode_text = self.medium_button_font.render(mode_label, True, BLACK)
+        if self.infinite_mode:
+            current_bg_color = BLUE
+            current_text_color = WHITE
+            mode_label = "INFINITE"
+        else:
+            current_bg_color = YELLOW
+            current_text_color = BLACK
+            mode_label = "CLASSIC"
+
+        pygame.draw.rect(self.screen, current_bg_color, self.mode_btn_rect)
+        mode_text = self.medium_button_font.render(mode_label, True, current_text_color)
         mode_text_rect = mode_text.get_rect(center=self.mode_btn_rect.center)
         self.screen.blit(mode_text, mode_text_rect)
 
