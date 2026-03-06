@@ -4,7 +4,22 @@ import copy
 from settings import *
 
 class Map:
+    """
+    Клас для управління ігровою мапою.
+    """
+
     def __init__(self, screen, level_data, level_color, width, height):
+        """
+        Ініціалізує об'єкт мапи.
+
+        Args:
+            screen (pygame.Surface): Поверхня, на якій малюється мапа.
+            level_data (list): Двовимірний масив (матриця) з даними рівня.
+            level_color (tuple/str): Колір стін для поточного рівня.
+            width (int): Ширина ігрового вікна.
+            height (int): Висота ігрового вікна.
+        """
+
         self.screen = screen
         self.initial_layout = level_data
         self.level = copy.deepcopy(self.initial_layout)
@@ -21,6 +36,11 @@ class Map:
         self.is_energizer_flashing = True
 
     def draw_map(self):
+        """
+        Малює всі елементи мапи (стіни, крапки, енерджайзери) на екрані.
+        Також оновлює стан миготіння енерджайзерів кожні 350 мс.
+        """
+
         PI = math.pi
 
         current_time = pygame.time.get_ticks()
@@ -54,8 +74,18 @@ class Map:
                 elif val == 9:
                     pygame.draw.line(self.screen, WHITE, (j * self.w, center_y), (j * self.w + self.w, center_y), 3)
 
-    #Перевірка чи гравець може йти, викликати перед рухом у методі гравця
     def can_move(self, x, y):
+        """
+        Перевіряє, чи є координата доступною для руху (чи не є вона стіною).
+
+        Args:
+            x (float/int): Координата X об'єкта.
+            y (float/int): Координата Y об'єкта.
+
+        Returns:
+            bool: True, якщо шлях вільний (крапка, енерджайзер або порожнеча), False — якщо стіна.
+        """
+
         col = int(x // self.w)
         row = int(y // self.h)
 
@@ -65,8 +95,21 @@ class Map:
             
         return False
     
-    #Перевірка з яким об'єктом стикнувся гравець, викликати після руха гравця
     def collision_with_objects(self, x, y):
+        """
+        Перевіряє зіткнення гравця з крапками або енерджайзерами.
+        Якщо об'єкт з'їдено, він видаляється з мапи.
+
+        Args:
+            x (float/int): Координата X гравця.
+            y (float/int): Координата Y гравця.
+
+        Returns:
+            tuple: (score, energizer_eaten)
+                score (int): Кількість отриманих очок (1 за крапку, 50 за енерджайзер).
+                energizer_eaten (bool): True, якщо з'їдено енерджайзер.
+        """
+
         score = 0
         col = int(x // self.w)
         row = int(y // self.h)
@@ -86,7 +129,12 @@ class Map:
         return score, energizer_eaten
     
     def is_clear(self):
-        """Перевіряє, чи залишилася на карті їжа або енерджайзери."""
+        """
+        Перевіряє, чи залишилася на карті їжа або енерджайзери.
+        
+        Returns:
+            bool: True, якщо всі крапки та енерджайзери зібрані, False в іншому випадку.
+        """
 
         for row in self.level:
             if 1 in row or 2 in row:

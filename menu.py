@@ -186,7 +186,7 @@ class Menu:
         Запускає цикл обробки подій для головного меню.
 
         Returns:
-            tuple: Кортеж ("start_game", level, color), якщо натиснута кнопка Play.
+            tuple: Кортеж ("start_game", level, color, inf_mode), якщо натиснута кнопка Play.
         """
         while True:
             mouse_pos = pygame.mouse.get_pos()
