@@ -7,7 +7,7 @@ from pacman import Pacman
 from ghost import Ghost
 from energizer import Energizer
 from cli import *
-from game_over import GameOverScreen
+from screens.game_over import GameOverScreen
 from win_screen import WinScreen
 
 # Ініціалізація Pygame
