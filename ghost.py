@@ -4,7 +4,25 @@ import time
 import random
 
 class Ghost:
+    """
+    Клас, що представляє привида в грі Pac-Man.
+    
+    Керує станами привида (очікування, вихід, переслідування, вразливість, повернення),
+    анімацією спрайтів та алгоритмами пошуку шляху до гравця.
+    """
     def __init__(self, name, filename, x, y, tile_size, scatter_pos, release_delay=0):
+        """
+        Ініціалізує об'єкт привида та завантажує всі необхідні графічні ресурси.
+
+        Args:
+            name (str): Ім'я привида.
+            filename (str): Назва основного файлу зображення.
+            x (int): Початкова координата X.
+            y (int): Початкова координата Y.
+            tile_size (int): Розмір однієї клітинки ігрового поля.
+            scatter_pos (tuple): Координати цілі в режимі розсіювання.
+            release_delay (int): Затримка в секундах перед виходом з будинку.
+        """
         self.name = name
         self.tile_size = tile_size
         self.spawn_pos = (x + tile_size // 2, y + tile_size // 2)
@@ -49,6 +67,15 @@ class Ghost:
         self.start_time = time.time()
     
     def update(self, player, game_map, blinky_pos, vulnerability_expiring=False):
+        """
+        Основний цикл оновлення стану привида. Визначає режим руху та вибирає потрібний спрайт.
+
+        Args:
+            player (Pacman): Об'єкт гравця.
+            game_map (Map): Об'єкт карти.
+            blinky_pos (tuple): Позиція червоного привида (для складних алгоритмів).
+            vulnerability_expiring (bool): Чи закінчується дія енерджайзера (для миготіння).
+        """
         self.update_animation()
         current_time = time.time()
 
@@ -122,6 +149,15 @@ class Ghost:
         self.is_vulnerable = False
             
     def move_logic(self, player, game_map, blinky_pos, is_vulnerable=False):
+        """
+        Виконує фізичне переміщення об'єкта та перевіряє зіткнення зі стінами.
+
+        Args:
+            player (Pacman): Об'єкт гравця.
+            game_map (Map): Об'єкт карти.
+            blinky_pos (tuple): Позиція червоного привида.
+            is_vulnerable (bool): Прапорець зниженої швидкості.
+        """
         current_speed = self.stunned_speed if is_vulnerable else self.speed
         check_offset = self.draw_size // 2  
 
@@ -191,6 +227,12 @@ class Ghost:
         return False, True 
 
     def normalize_direction(self, speed):
+        """
+        Коригує вектор напрямку відповідно до поточної швидкості.
+
+        Args:
+            speed (int): Швидкість, яку треба застосувати до вектора.
+        """
         dir_x = speed if self.direction[0] > 0 else -speed if self.direction[0] < 0 else 0
         dir_y = speed if self.direction[1] > 0 else -speed if self.direction[1] < 0 else 0
         return dir_x, dir_y
@@ -230,6 +272,9 @@ class Ghost:
             return self.find_closest_direction(valid_dirs, player)
         
     def find_closest_direction(self, valid_dirs, player):
+        """
+        Знаходить серед доступних напрямків той, що максимально наближає привида до Пакмена.
+        """
         best_dir = valid_dirs[0]
         min_dist = float('inf')
 
@@ -283,4 +328,10 @@ class Ghost:
         self.frame_index = int(self.anim_timer)
 
     def draw(self, screen):
+        """
+        Відмальовує поточний спрайт привида на ігровому екрані.
+
+        Args:
+            screen (pygame.Surface): Екран для малювання.
+        """
         screen.blit(self.image, self.rect)

@@ -9,11 +9,11 @@ from energizer import Energizer
 from cli import *
 from screens import WinScreen, GameOverScreen
 
-# Ініціалізація Pygame
+#  Ініціалізація Pygame: запуск двигуна та налаштування графічного вікна
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
-
+# Спроба завантажити фірмовий шрифт у стилі Pac-Man
 try:
     UI_FONT = pygame.font.Font("fonts/Emulogic-font.ttf", 20)
 except:

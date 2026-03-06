@@ -1,7 +1,20 @@
 import pygame
 
 class Pacman:
+    """
+    Клас, що представляє головного героя гри — Пакмена.
+    
+    Відповідає за обробку введення користувача, пересування по лабіринту,
+    фіксацію на центральних лініях коридорів та анімацію руху.
+    """
     def __init__(self, x, y):
+        """
+        Ініціалізує об'єкт Пакмена.
+
+        Args:
+            x (int): Початкова координата X.
+            y (int): Початкова координата Y.
+        """
         self.size = (27, 27)
         self.sprites = {
             "left":  self.load_frames("pacman_left"),
@@ -23,6 +36,17 @@ class Pacman:
         self.next_direction = (0, 0)
 
     def can_move_to(self, x, y, game_map):
+        """
+        Перевіряє можливість руху в задані координати, враховуючи стіни та телепорти.
+
+        Args:
+            x (int): Цільова координата X.
+            y (int): Цільова координата Y.
+            game_map (Map): Об'єкт карти для перевірки колізій.
+
+        Returns:
+            bool: True, якщо шлях вільний, інакше False.
+        """
         # Перевіряємо тільки одну точку — ПЕРЕД Пакменом по центру його руху
         # Якщо перед носом не стіна — він їде. Це виключає застрягання боками.
         dx = 0 if self.direction[0] == 0 else 1 if self.direction[0] > 0 else -1
@@ -40,6 +64,12 @@ class Pacman:
         return game_map.can_move(check_x, check_y)
 
     def update(self, game_map):
+        """
+        Оновлює стан Пакмена кожного кадру: зчитує клавіші, змінює напрямок та рухає об'єкт.
+
+        Args:
+            game_map (Map): Об'єкт карти для взаємодії з оточенням.
+        """
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:  self.next_direction = (-self.speed, 0)
         if keys[pygame.K_RIGHT]: self.next_direction = (self.speed, 0)
@@ -134,4 +164,10 @@ class Pacman:
         elif self.direction == (0, self.speed): self.look_direction = "down"
 
     def draw(self, screen):
+        """
+        Малює Пакмена на заданій поверхні еcallкрана.
+
+        Args:
+            screen (pygame.Surface): Поверхня для відмальовування.
+        """
         screen.blit(self.image, self.rect)
