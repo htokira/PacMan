@@ -1,11 +1,11 @@
 import pygame
 import pytest
-from map import Map
+from map import *
 
 @pytest.fixture
 def create_map():
     def _create(level_data):
-        return Map(None, level_data, None, 100, 100)
+        return Map(screen=None, level_data=level_data, level_color=None, width=100, height=100)
     return _create
 
 @pytest.mark.map
@@ -20,3 +20,33 @@ def test_can_move(create_map, level_data, test_x, test_y, expected):
     m = create_map(level_data)
     
     assert m.can_move(test_x, test_y) == expected
+
+@pytest.mark.map
+def test_eat_dot(create_map):
+    m = create_map([[1]])
+
+    score, energizer = m.collision_with_objects(10, 10)
+
+    assert score == 1
+    assert not energizer
+    assert m.level[0][0] == 0
+
+@pytest.mark.map
+def test_eat_energizer(create_map):
+    m = create_map([[2]])
+
+    score, energizer = m.collision_with_objects(10, 10)
+
+    assert score == 50
+    assert energizer
+    assert m.level[0][0] == 0
+
+@pytest.mark.map
+def test_eat_nothing(create_map):
+    m = create_map([[0]])
+
+    score, energizer = m.collision_with_objects(10, 10)
+    
+    assert score == 0
+    assert not energizer
+    assert m.level[0][0] == 0
