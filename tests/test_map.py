@@ -46,7 +46,18 @@ def test_eat_nothing(create_map):
     m = create_map([[0]])
 
     score, energizer = m.collision_with_objects(10, 10)
-    
+
     assert score == 0
     assert not energizer
     assert m.level[0][0] == 0
+
+@pytest.mark.map
+@pytest.mark.parametrize("level_data, expected_clear",
+                        [([[0, 0], [0, 0]], True),
+                        ([[3, 4], [5, 6]], True),
+                        ([[1, 0], [0, 0]], False),
+                        ([[0, 2], [0, 0]], False)])
+def test_is_clear(create_map, level_data, expected_clear):
+    m = create_map(level_data)
+
+    assert m.is_clear() == expected_clear
