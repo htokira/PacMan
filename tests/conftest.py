@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from map import Map
 from ghost import Ghost
+from energizer import Energizer
 
 @pytest.fixture(scope="session", autouse=True)
 def pygame_init():
@@ -24,3 +25,7 @@ def create_map():
 @pytest.fixture
 def ghost():
     return Ghost("Blinky", "blinky.png", 100, 100, 34, (0, 0))
+
+@pytest.fixture
+def energizer():
+    return Energizer()
