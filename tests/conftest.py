@@ -8,6 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from map import Map
 from ghost import Ghost
 from energizer import Energizer
+from pacman import Pacman
 
 @pytest.fixture(scope="session", autouse=True)
 def pygame_init():
@@ -29,3 +30,7 @@ def ghost():
 @pytest.fixture
 def energizer():
     return Energizer()
+
+@pytest.fixture
+def pacman():
+    return Pacman(100, 100)
