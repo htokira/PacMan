@@ -6,6 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from map import Map
 
+
 @pytest.fixture
 def create_map():
     def _create(level_data):
