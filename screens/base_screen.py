@@ -1,7 +1,8 @@
 import os
 import pygame
 import sys
-from settings import *
+from settings import WIDTH, WHITE, BLACK, YELLOW
+
 
 class BaseEndScreen:
     """
@@ -17,7 +18,7 @@ class BaseEndScreen:
 
     def init_fonts(self):
         font_path = os.path.join(self.font_dir, 'Emulogic-font.ttf')
-        
+
         if not os.path.exists(font_path):
             self.font = pygame.font.SysFont('Arial', 75)
             self.score_font = pygame.font.SysFont('Arial', 30)
@@ -37,33 +38,33 @@ class BaseEndScreen:
 
         back_btn_rect = pygame.Rect(0, 0, 370, 60)
         back_btn_rect.center = (WIDTH // 2, 400)
-        
+
         button_label = "EXIT" if self.is_cli else "MAIN MENU"
         back_text = self.button_font.render(button_label, True, BLACK)
         back_text_rect = back_text.get_rect(center=back_btn_rect.center)
-        
+
         return title_surf, title_rect, score_surface, score_rect, back_btn_rect, back_text, back_text_rect
 
     def display(self, title_text, title_color):
         """Загальний цикл відображення."""
-        (title_surf, title_rect, score_surface, score_rect, 
+        (title_surf, title_rect, score_surface, score_rect,
          back_btn_rect, back_text, back_text_rect) = self._render_common_elements(title_text, title_color)
 
         running = True
         while running:
             mouse_pos = pygame.mouse.get_pos()
             self.screen.fill(BLACK)
-            
+
             self.screen.blit(title_surf, title_rect)
             self.screen.blit(score_surface, score_rect)
             pygame.draw.rect(self.screen, YELLOW, back_btn_rect)
             self.screen.blit(back_text, back_text_rect)
-            
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                
+
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if back_btn_rect.collidepoint(mouse_pos):
                         if self.is_cli:
@@ -71,5 +72,5 @@ class BaseEndScreen:
                             sys.exit()
                         else:
                             running = False
-            
+
             pygame.display.update()

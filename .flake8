@@ -6,4 +6,5 @@ exclude =
     venv,
     .venv,
     */site-packages/*
+    screens\__init__.py
 ignore = W503
