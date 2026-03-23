@@ -1,13 +1,15 @@
 import os
 import pygame
 import sys
-from settings import *
-from levels import *
+from settings import BLUE, WHITE, WIDTH, BLACK, YELLOW, GREEN, RED
+from levels import LEVEL1, LEVEL2, LEVEL3
+
 
 class Menu:
     """
     Клас для керування ігровим меню.
-    Відповідає за відображення головного меню та меню вибору складності, завантаження шрифтів та обробку вибору користувача.
+    Відповідає за відображення головного меню та меню вибору складності,
+    завантаження шрифтів та обробку вибору користувача.
     """
     def __init__(self, screen):
         """
@@ -44,14 +46,14 @@ class Menu:
             self.button_font = pygame.font.Font(font_path, 40)
             self.medium_button_font = pygame.font.Font(font_path, 35)
             self.small_button_font = pygame.font.Font(font_path, 25)
-        
+
     def init_main_menu(self):
         """
         Створює текстові поверхні та прямокутники для кнопок головного меню.
         """
         # Заголовок
         self.title_text = self.font.render("PAC-MAN", True, WHITE)
-        self.title_rect = self.title_text.get_rect(center = (WIDTH // 2, 150))
+        self.title_rect = self.title_text.get_rect(center=(WIDTH // 2, 150))
 
         # Start game кнопка
         self.button_rect = pygame.Rect(0, 0, 200, 60)
@@ -90,7 +92,7 @@ class Menu:
 
         self.hard_text = self.small_button_font.render("HARD", True, WHITE)
         self.hard_rect = self.hard_text.get_rect(center=(WIDTH // 2, 380))
-        
+
         # Назад
         self.back_text = self.small_button_font.render("BACK", True, WHITE)
         self.back_rect = self.back_text.get_rect(center=(WIDTH // 2, 500))
@@ -99,7 +101,7 @@ class Menu:
         """
         Малює всі елементи головного меню на екрані.
         """
-        self.screen.fill(BLACK)   
+        self.screen.fill(BLACK)
         self.screen.blit(self.title_text, self.title_rect)
 
         # Play кнопка
@@ -132,13 +134,13 @@ class Menu:
         """
         Малює всі елементи меню складності на екрані.
         """
-        self.screen.fill(BLACK)   
+        self.screen.fill(BLACK)
         self.screen.blit(self.diff_title, self.diff_title_rect)
         self.screen.blit(self.easy_text, self.easy_rect)
         self.screen.blit(self.med_text, self.med_rect)
         self.screen.blit(self.hard_text, self.hard_rect)
         self.screen.blit(self.back_text, self.back_rect)
-        
+
     def display_difficulty_menu(self):
         """
         Запускає цикл обробки подій для меню складності.
@@ -151,7 +153,7 @@ class Menu:
 
             for event in pygame.event.get():
                 self.handle_quit_event(event)
-                
+
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if self.easy_rect.collidepoint(mouse_pos):
                         self.selected_level = LEVEL1
@@ -180,7 +182,7 @@ class Menu:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        
+
     def display_main_menu(self):
         """
         Запускає цикл обробки подій для головного меню.
@@ -194,14 +196,14 @@ class Menu:
 
             for event in pygame.event.get():
                 self.handle_quit_event(event)
-                
+
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if self.button_rect.collidepoint(mouse_pos):
                         return "start_game", self.selected_level, self.selected_color, self.infinite_mode
 
                     if self.mode_btn_rect.collidepoint(mouse_pos):
                         self.infinite_mode = not self.infinite_mode
-                        
+
                     if self.diff_btn_rect.collidepoint(mouse_pos):
                         self.display_difficulty_menu()
 
