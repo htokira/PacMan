@@ -1,9 +1,10 @@
 import pygame
 
+
 class Pacman:
     """
     Клас, що представляє головного героя гри — Пакмена.
-    
+
     Відповідає за обробку введення користувача, пересування по лабіринту,
     фіксацію на центральних лініях коридорів та анімацію руху.
     """
@@ -17,22 +18,22 @@ class Pacman:
         """
         self.size = (27, 27)
         self.sprites = {
-            "left":  self.load_frames("pacman_left"),
+            "left": self.load_frames("pacman_left"),
             "right": self.load_frames("pacman_right"),
-            "up":    self.load_frames("pacman_up"),
-            "down":  self.load_frames("pacman_down")
+            "up": self.load_frames("pacman_up"),
+            "down": self.load_frames("pacman_down")
         }
 
-        self.look_direction = "right" 
+        self.look_direction = "right"
         self.frame_index = 0
         self.anim_speed = 0.2
         self.anim_timer = 0
-            
+
         self.image = self.sprites[self.look_direction][0]
         self.rect = self.image.get_rect(topleft=(x, y))
-        
-        self.speed = 2 
-        self.direction = (0, 0) 
+
+        self.speed = 2
+        self.direction = (0, 0)
         self.next_direction = (0, 0)
 
     def can_move_to(self, x, y, game_map):
@@ -51,7 +52,7 @@ class Pacman:
         # Якщо перед носом не стіна — він їде. Це виключає застрягання боками.
         dx = 0 if self.direction[0] == 0 else 1 if self.direction[0] > 0 else -1
         dy = 0 if self.direction[1] == 0 else 1 if self.direction[1] > 0 else -1
-        
+
         check_x = x + 13 + dx * 8
         check_y = y + 13 + dy * 8
 
@@ -71,10 +72,14 @@ class Pacman:
             game_map (Map): Об'єкт карти для взаємодії з оточенням.
         """
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:  self.next_direction = (-self.speed, 0)
-        if keys[pygame.K_RIGHT]: self.next_direction = (self.speed, 0)
-        if keys[pygame.K_UP]:    self.next_direction = (0, -self.speed)
-        if keys[pygame.K_DOWN]:  self.next_direction = (0, self.speed)
+        if keys[pygame.K_LEFT]:
+            self.next_direction = (-self.speed, 0)
+        if keys[pygame.K_RIGHT]:
+            self.next_direction = (self.speed, 0)
+        if keys[pygame.K_UP]:
+            self.next_direction = (0, -self.speed)
+        if keys[pygame.K_DOWN]:
+            self.next_direction = (0, self.speed)
 
         # Центр плитки (ось доріжки)
         tile_center_x = (self.rect.centerx // game_map.w) * game_map.w + game_map.w // 2
@@ -99,10 +104,12 @@ class Pacman:
         if self.can_move_to(new_x, new_y, game_map):
             self.rect.x = new_x
             self.rect.y = new_y
-            
+
             # МАГНІТ: не даємо йому зміщуватися вбік від центральної лінії
-            if self.direction[0] != 0: self.rect.centery = tile_center_y # Їде горизонтально — фіксуємо Y
-            if self.direction[1] != 0: self.rect.centerx = tile_center_x # Їде вертикально — фіксуємо X
+            if self.direction[0] != 0:
+                self.rect.centery = tile_center_y  # Їде горизонтально — фіксуємо Y
+            if self.direction[1] != 0:
+                self.rect.centerx = tile_center_x  # Їде вертикально — фіксуємо X
 
             if self.rect.centerx < 0:
                 self.rect.centerx += game_map.width
@@ -114,7 +121,7 @@ class Pacman:
             self.rect.centerx, self.rect.centery = tile_center_x, tile_center_y
 
         self.update_animation()
-    
+
     def load_frames(self, prefix):
         """
         Завантажує кадри анімації з папки.
@@ -131,37 +138,41 @@ class Pacman:
             try:
                 img = pygame.image.load(path).convert_alpha()
                 frames.append(pygame.transform.scale(img, self.size))
-            except:
+            except Exception:
                 surf = pygame.Surface(self.size, pygame.SRCALPHA)
-                pygame.draw.circle(surf, (255, 255, 0), (13, 13), 13 - i*2)
+                pygame.draw.circle(surf, (255, 255, 0), (13, 13), 13 - i * 2)
                 frames.append(surf)
         return frames
-    
+
     def update_animation(self):
         """
         Керує циклом анімації Пакмена.
         """
-        if self.direction != (0, 0): # Програється анімація
+        if self.direction != (0, 0):  # Програється анімація
             self.anim_timer += self.anim_speed
 
             if self.anim_timer >= 4:
                 self.anim_timer = 0
-                
-            animation_sequence = [0, 1, 2, 1] # Анімація 1 - 2 - 3 - 2
+
+            animation_sequence = [0, 1, 2, 1]  # Анімація 1 - 2 - 3 - 2
             self.frame_index = animation_sequence[int(self.anim_timer)]
-        else: # Відсутня анімація
+        else:  # Відсутня анімація
             self.frame_index = 2
 
         self.image = self.sprites[self.look_direction][self.frame_index]
-    
+
     def update_look_direction(self):
         """
         Визначає напрямок Пакмена для вибору відповідного набору спрайтів.
         """
-        if self.direction == (-self.speed, 0): self.look_direction = "left"
-        elif self.direction == (self.speed, 0): self.look_direction = "right"
-        elif self.direction == (0, -self.speed): self.look_direction = "up"
-        elif self.direction == (0, self.speed): self.look_direction = "down"
+        if self.direction == (-self.speed, 0):
+            self.look_direction = "left"
+        elif self.direction == (self.speed, 0):
+            self.look_direction = "right"
+        elif self.direction == (0, -self.speed):
+            self.look_direction = "up"
+        elif self.direction == (0, self.speed):
+            self.look_direction = "down"
 
     def draw(self, screen):
         """

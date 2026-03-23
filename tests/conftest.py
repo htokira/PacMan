@@ -17,6 +17,7 @@ def pygame_init():
     yield
     pygame.quit()
 
+
 @pytest.fixture
 def create_map():
     def _create(level_data):
