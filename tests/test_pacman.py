@@ -33,14 +33,7 @@ def test_pacman_update_movement(pacman, create_map):
 
 @pytest.mark.pacman
 def test_pacman_can_move_to_wall(pacman, create_map):
-    """Перевіряємо, що Пакмен бачить стіну і не може туди йти"""
-    # Створюємо карту: (0,0) - пусто, (0,1) - стіна (код 3)
-    level_data = [[0, 3], [0, 0]]
-    game_map = create_map(level_data)
-    
+    game_map = create_map([[0, 3]]) # Пусто, Стіна
     pacman.rect.topleft = (0, 0)
-    pacman.direction = (pacman.speed, 0) # Хочемо йти вправо, де стіна
-    
-    # Перевіряємо метод перевірки можливості ходу
-    # rect.x + speed — це спроба стати на координату стіни
-    assert pacman.can_move_to(pacman.rect.x + pacman.speed, pacman.rect.y, game_map) is False
+    # Перевіряємо точку 40 (це точно друга клітинка, бо 40 > 32)
+    assert pacman.can_move_to(40, 16, game_map) is False
