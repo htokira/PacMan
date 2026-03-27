@@ -31,3 +31,4 @@ def test_energizer_is_about_to_expire(energizer):
 
     energizer.start_time = time.time() - 8
     assert energizer.is_about_to_expire() is True
+    

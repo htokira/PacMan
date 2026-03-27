@@ -39,3 +39,10 @@ def test_is_clear(create_map, level_data, expected_clear):
     m = create_map(level_data)
 
     assert m.is_clear() == expected_clear
+def test_map_wall_collision(create_map):
+    """Перевіряємо, чи бачить карта стіни (код 3)"""
+    level_data = [[3, 3], [3, 3]]
+    test_map = create_map(level_data)
+    # Перевіряємо першу клітинку
+    assert test_map.level[0][0] == 3
+#jcnfnjxyf dthcsz 
