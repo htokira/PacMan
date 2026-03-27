@@ -2,6 +2,7 @@ import sys
 import os
 import pytest
 import pygame
+from unittest.mock import patch
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -17,7 +18,6 @@ def pygame_init():
     yield
     pygame.quit()
 
-
 @pytest.fixture
 def create_map():
     def _create(level_data):
@@ -27,7 +27,14 @@ def create_map():
 @pytest.fixture
 def ghost():
     return Ghost("Blinky", "blinky.png", 100, 100, 34, (0, 0))
-
+#jcnfnjxyf dthcsz ntcnsd
+@pytest.fixture(autouse=True)
+def mock_pygame_images():
+    """Автоматично замінює завантаження картинок на пусті поверхні"""
+    with patch("pygame.image.load") as mock_load:
+        # Створюємо пусту картинку 32x32 пікселі
+        mock_load.return_value = pygame.Surface((32, 32))
+        yield
 @pytest.fixture
 def energizer():
     return Energizer()
