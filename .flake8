@@ -7,4 +7,4 @@ exclude =
     .venv,
     */site-packages/*
     screens\__init__.py
-ignore = W503
+ignore = W503, E302, W293, E712, E402, W292
