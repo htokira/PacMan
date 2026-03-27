@@ -74,7 +74,7 @@ def test_ghost_vulnerability_toggle(ghost):
         ("CHASE", True, True, False, "RETURNING"),
         ("RETURNING", False, False, False, "RETURNING"),
     ],
-)
+) #jcnfnjxyf dthcsz ntcnsd 
 def test_handle_collision_states(
     ghost, initial_mode, is_vuln, expected_eaten, expected_killed, expected_mode
 ):
