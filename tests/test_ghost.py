@@ -1,69 +1,69 @@
 import pytest
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 import time
+
 
 @pytest.mark.ghost
 def test_ghost_full_lifecycle_update(ghost, create_map):
     # 1. Підготовка оточення
-    game_map = create_map([[0]*20 for _ in range(20)]) # Пуста карта
+    game_map = create_map([[0] * 20 for _ in range(20)])  # Пуста карта
     mock_player = MagicMock()
     mock_player.rect.center = (100, 100)
     ghost.tile_size = 32
-    
+
     # 2. ТЕСТ РЕЖИМУ WAITING (Перевірка затримки)
     ghost.mode = "WAITING"
-    ghost.release_delay = 10 
-    ghost.start_time = time.time() # щойно почав чекати
-    
-    ghost.update(mock_player, game_map, (0,0))
-    assert ghost.mode == "WAITING" # має все ще чекати
-    
+    ghost.release_delay = 10
+    ghost.start_time = time.time()  # щойно почав чекати
+
+    ghost.update(mock_player, game_map, (0, 0))
+    assert ghost.mode == "WAITING"  # має все ще чекати
+
     # 3. ТЕСТ ПЕРЕХОДУ В EXITING
-    ghost.start_time = time.time() - 11 # "відмотуємо" час назад
-    ghost.update(mock_player, game_map, (0,0))
+    ghost.start_time = time.time() - 11  # "відмотуємо" час назад
+    ghost.update(mock_player, game_map, (0, 0))
     assert ghost.mode == "EXITING"
-    
+
     # 4. ТЕСТ ЛОГІКИ EXITING (Рух до брами)
     # Ставимо його нижче лінії брами (gate_y = 8 * 32 = 256)
-    ghost.rect.y = 300 
-    ghost.rect.centerx = 10 * 32 + 16 # вирівняли по центру
-    
-    ghost.update(mock_player, game_map, (0,0))
-    assert ghost.rect.y < 300 # має рухатися вгору
-    
+    ghost.rect.y = 300
+    ghost.rect.centerx = 10 * 32 + 16  # вирівняли по центру
+
+    ghost.update(mock_player, game_map, (0, 0))
+    assert ghost.rect.y < 300  # має рухатися вгору
+
     # 5. ТЕСТ ПЕРЕХОДУ В CHASE (Вихід на волю)
-    ghost.rect.y = 8 * 32 # Досяг брами
-    ghost.update(mock_player, game_map, (0,0))
+    ghost.rect.y = 8 * 32  # Досяг брами
+    ghost.update(mock_player, game_map, (0, 0))
     # Перевіряємо, що режим змінився. Напрямок може бути різним залежно від Пакмена,
     # тому просто перевіримо, що він не нульовий.
     assert ghost.mode == "CHASE"
-    assert ghost.direction[1] != 0 # він кудись рухається по вертикалі
+    assert ghost.direction[1] != 0  # він кудись рухається по вертикалі
 
 
 @pytest.mark.ghost
-def test_ghost_targets_player_optimally(ghost, create_map):
-    game_map = create_map([[0]*5 for _ in range(5)])
-    
+def test_ghost_targets_player_optimally(ghost):
     # Створюємо мок гравця з РЕАЛЬНИМИ числами в rect
     mock_player = MagicMock()
     mock_player.rect.centerx = 128
     mock_player.rect.centery = 32
-    
+
     ghost.rect.topleft = (32, 32)
-    valid_dirs = [(2, 0), (0, 2)] # Вправо або Вниз
-    
+    valid_dirs = [(2, 0), (0, 2)]  # Вправо або Вниз
+
     # Тепер calculate_distance отримає числа і порівняння спрацює
     best_dir = ghost.find_closest_direction(valid_dirs, mock_player)
     assert best_dir == (2, 0)
 
+
 @pytest.mark.ghost
 def test_ghost_vulnerability_toggle(ghost):
     ghost.start_vulnerable()
-    assert ghost.is_vulnerable == True
+    assert ghost.is_vulnerable is True
 
     ghost.stop_vulnerable()
-    assert ghost.is_vulnerable == False
+    assert ghost.is_vulnerable is False
 
 
 @pytest.mark.ghost
@@ -74,7 +74,7 @@ def test_ghost_vulnerability_toggle(ghost):
         ("CHASE", True, True, False, "RETURNING"),
         ("RETURNING", False, False, False, "RETURNING"),
     ],
-) #jcnfnjxyf dthcsz ntcnsd 
+)
 def test_handle_collision_states(
     ghost, initial_mode, is_vuln, expected_eaten, expected_killed, expected_mode
 ):
@@ -127,4 +127,4 @@ def test_ghost_fly_home_arrival(ghost):
     ghost.fly_home()
     assert ghost.rect.center == ghost.spawn_pos
     assert ghost.mode == "WAITING"
-    assert ghost.is_vulnerable == False
+    assert ghost.is_vulnerable is False

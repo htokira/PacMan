@@ -11,6 +11,7 @@ from ghost import Ghost
 from energizer import Energizer
 from pacman import Pacman
 
+
 @pytest.fixture(scope="session", autouse=True)
 def pygame_init():
     pygame.init()
@@ -18,23 +19,26 @@ def pygame_init():
     yield
     pygame.quit()
 
+
 @pytest.fixture
 def create_map():
     def _create(level_data):
         tile_size = 32
         # Розраховуємо ширину/висоту так, щоб тайл був рівно 32 пікселі
         width = len(level_data[0]) * tile_size
-        height = len(level_data) * tile_size + 50 
-        m = Map(None, level_data, (0,0,255), width, height)
+        height = len(level_data) * tile_size + 50
+        m = Map(None, level_data, (0, 0, 255), width, height)
         m.w, m.h = tile_size, tile_size
         return m
     return _create
+
 
 @pytest.fixture(autouse=True)
 def mock_pygame_images():
     with patch("pygame.image.load") as mock_load:
         mock_load.return_value = pygame.Surface((32, 32))
         yield
+
 
 @pytest.fixture
 def pacman():
@@ -46,6 +50,8 @@ def ghost():
     # Додаємо відсутні аргументи (tile_size та scatter_targets)
     # 32 - це стандартний розмір тайла, [(0,0)] - список цілей для розсіювання
     return Ghost("Blinky", "blinky.png", 100, 100, 32, [(0, 0)])
+
+
 @pytest.fixture
 def energizer():
     return Energizer()
